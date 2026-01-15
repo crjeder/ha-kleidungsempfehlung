@@ -1,0 +1,11 @@
+{
+  "domain": "kleidungsempfehlung",
+  "name": "Kleidungsempfehlung",
+  "version": "0.1.0",
+  "documentation": "https://github.com/crjeder/ha-kleidungsempfehlung",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": ["@crjeder"],
+  "config_flow": true,
+  "iot_class": "local_polling"
+}

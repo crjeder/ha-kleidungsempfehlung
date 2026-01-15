@@ -1,0 +1,20 @@
+{
+  "name": {
+    "en": "Kleidungsempfehlung",
+    "de": "Kleidungsempfehlung"
+  },
+  "config": {
+    "step": {
+      "user": {
+        "title": {
+          "en": "Configure Kleidungsempfehlung",
+          "de": "Kleidungsempfehlung konfigurieren"
+        },
+        "description": {
+          "en": "Select sensor entities for temperature, humidity, wind, UV, activity and personal data.",
+          "de": "Wähle Sensor-Entitäten für Temperatur, Luftfeuchte, Wind, UV, Aktivität und persönliche Daten."
+        }
+      }
+    }
+  }
+}
