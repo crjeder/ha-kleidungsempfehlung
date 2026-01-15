@@ -1,4 +1,3 @@
-```markdown
 # Thermischer Komfort & Kleidungsauswahl – Baukasten
 
 **Kurzüberblick (Was ist drin?)**
@@ -45,8 +44,9 @@ Wichtig: Die Integration basiert auf Norm‑Näherungen und Heuristiken aus dem 
 
 - Erweiterungen: Ensemble‑Optimierer, UV‑Schutz‑Warnings, Logging von Nutzer-Feedback für Kalibrierung (PCM).
 - Tests: Die enthaltenen `__main__`-Blöcke in der Engine sind einfache Selbsttests; nutze sie lokal zur Validierung.
-- Lizenz: Bitte angeben (z. B. MIT) falls gewünscht.
 
 ## Quellen
 Siehe Header im eingebetteten Python-Code für Referenzen zu ISO 7730 / ASHRAE 55, WHO UV‑Index, etc.
-```
+
+# Warnung!
+Das Repository kann KI-generierte Daten enthalten!
