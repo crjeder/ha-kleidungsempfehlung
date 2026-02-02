@@ -42,8 +42,36 @@ Wichtig: Die Integration basiert auf Norm‑Näherungen und Heuristiken aus dem 
 
 ## Hinweise & Weiterentwicklung
 
-- Erweiterungen: Ensemble‑Optimierer, UV‑Schutz‑Warnings, Logging von Nutzer-Feedback für Kalibrierung (PCM).
-- Tests: Die enthaltenen `__main__`-Blöcke in der Engine sind einfache Selbsttests; nutze sie lokal zur Validierung.
+
+### Kleidugnsstück
+JSON Schema für Kleidugnsstück
+| Feld | Typ | Beschreibung |
+|---|---|---|
+| id | String | Eindeutiger Name (z.B. heavy_wool_sweater). |
+| name | String | Friendly name |
+| category | Enum | under_bottom, under_top, torso_base, torso_mid, torso_outer, legs, neck, hands, head, feet, shoes. |
+| layer | Enum | base, mid, outer (Wichtig für die Schicht-Logik). |
+| clo | Float | Isolationswert im trockenen Zustand. |
+| coverage | Enum | short (T-Shirt/Shorts) oder full (Langarm/Lange Hose). |
+| waterproof | Bool | true, wenn es als Regenschutz fungiert. |
+| windproof | Bool | true, wenn es Wind blockiert (z.B. Hardshell, Windbreaker). |
+| coverage | Enum | low, medium, full: the respective coverage of the body area
+| upf | Integer | UV Protection Factor
+| picture | String | URI to image |
+| dscription | String | Short description |
+| comment | String | Additional text |
+
+### Person
+Eine person hat folgende Slots für Kleidungsstücke
+- head
+- neck
+- torso
+- hand
+- bottom
+- legs
+- feet
+die in layern übereinander belegt werden können
+
 
 ## Quellen
 Siehe Header im eingebetteten Python-Code für Referenzen zu ISO 7730 / ASHRAE 55, WHO UV‑Index, etc.
