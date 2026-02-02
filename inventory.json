@@ -1,27 +1,5 @@
 [
   {
-    "id": "tights",
-    "name": "Tights / Strumpfhose",
-    "slot": "legs",
-    "fit": "base",
-    "clo": 0.02,
-    "waterproof": false,
-    "windproof": false,
-    "coverage": "full",
-    "upf": 5
-  },
-  {
-    "id": "panties_women",
-    "name": "Slip (Damen)",
-    "slot": "legs",
-    "fit": "base",
-    "clo": 0.03,
-    "waterproof": false,
-    "windproof": false,
-    "coverage": "low",
-    "upf": 5
-  },
-  {
     "id": "briefs_men",
     "name": "Slip / Unterhose (Herren)",
     "slot": "legs",
@@ -88,17 +66,6 @@
     "upf": 15
   },
   {
-    "id": "bra",
-    "name": "BH",
-    "slot": "torso",
-    "fit": "base",
-    "clo": 0.01,
-    "waterproof": false,
-    "windproof": false,
-    "coverage": "low",
-    "upf": 5
-  },
-  {
     "id": "undershirt_sleeveless",
     "name": "Unterhemd aermellos",
     "slot": "torso",
@@ -154,17 +121,6 @@
     "upf": 40
   },
   {
-    "id": "tube_top",
-    "name": "Tube Top",
-    "slot": "torso",
-    "fit": "mid",
-    "clo": 0.06,
-    "waterproof": false,
-    "windproof": false,
-    "coverage": "low",
-    "upf": 10
-  },
-  {
     "id": "t_shirt_synthetic",
     "name": "T-Shirt (Synthetik)",
     "slot": "torso",
@@ -209,17 +165,6 @@
     "upf": 15
   },
   {
-    "id": "blouse_light",
-    "name": "Leichte Bluse (langarm)",
-    "slot": "torso",
-    "fit": "mid",
-    "clo": 0.15,
-    "waterproof": false,
-    "windproof": false,
-    "coverage": "full",
-    "upf": 20
-  },
-  {
     "id": "shirt_light",
     "name": "Leichtes Hemd (langarm)",
     "slot": "torso",
@@ -247,17 +192,6 @@
     "slot": "torso",
     "fit": "mid",
     "clo": 0.30,
-    "waterproof": false,
-    "windproof": false,
-    "coverage": "full",
-    "upf": 30
-  },
-  {
-    "id": "turtleneck_blouse",
-    "name": "Rollkragenbluse (langarm)",
-    "slot": "torso",
-    "fit": "mid",
-    "clo": 0.34,
     "waterproof": false,
     "windproof": false,
     "coverage": "full",
@@ -570,39 +504,6 @@
     "windproof": true,
     "coverage": "full",
     "upf": 50
-  },
-  {
-    "id": "skirt_short_light",
-    "name": "Leichter Rock (kurz)",
-    "slot": "legs",
-    "fit": "mid",
-    "clo": 0.10,
-    "waterproof": false,
-    "windproof": false,
-    "coverage": "low",
-    "upf": 15
-  },
-  {
-    "id": "skirt_midi_light",
-    "name": "Leichter Rock (knielang)",
-    "slot": "legs",
-    "fit": "mid",
-    "clo": 0.18,
-    "waterproof": false,
-    "windproof": false,
-    "coverage": "medium",
-    "upf": 20
-  },
-  {
-    "id": "skirt_heavy",
-    "name": "Schwerer Rock (knielang)",
-    "slot": "legs",
-    "fit": "mid",
-    "clo": 0.25,
-    "waterproof": false,
-    "windproof": false,
-    "coverage": "medium",
-    "upf": 30
   },
   {
     "id": "socks_thin",

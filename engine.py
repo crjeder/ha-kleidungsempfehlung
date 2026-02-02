@@ -18,6 +18,12 @@ from typing import Any
 DEFAULT_MAX_LAYERS = 4
 SLOTS = ["head", "neck", "torso", "hands", "legs", "feet"]
 
+# Required positions that must always be filled (slot, layer_index)
+REQUIRED_POSITIONS = [
+    ("legs", 0),   # Underwear
+    ("feet", 1),   # Shoes
+]
+
 
 def compute_fit_positions(max_layers: int) -> dict[str, list[int]]:
     """
@@ -283,6 +289,16 @@ class SmartClothingEngine:
                     message=f"Unknown slot '{slot}' in ensemble (will be ignored)"
                 ))
 
+        # Check required positions are filled
+        for slot, layer_idx in REQUIRED_POSITIONS:
+            if slot in ensemble and layer_idx < len(ensemble[slot]):
+                if ensemble[slot][layer_idx] is None:
+                    issues.append(ValidationIssue(
+                        severity=ValidationSeverity.ERROR,
+                        slot=slot, layer=layer_idx, item_id=None,
+                        message=f"Required position {slot}[{layer_idx}] is empty"
+                    ))
+
         has_errors = any(i.severity == ValidationSeverity.ERROR for i in issues)
         return ValidationResult(valid=not has_errors, issues=issues)
 
@@ -333,10 +349,11 @@ class SmartClothingEngine:
             ensemble = self._create_empty_ensemble()
             # Default base layers (fit: base items at index 0)
             ensemble["torso"][0] = "t_shirt_base"        # base layer
-            ensemble["legs"][0] = "boxer_synthetic"      # base layer
+            ensemble["legs"][0] = "boxer_synthetic"      # base layer (required)
             ensemble["feet"][0] = "socks_standard"       # base layer
             # Default mid layer (fit: mid items at index 1+)
             ensemble["legs"][1] = "pants_standard"       # mid layer
+            ensemble["feet"][1] = "sneakers"             # shoes (required)
 
         # Rain requirement: if raining, MUST add waterproof outer layer
         if rain_mm_h > 1.0:
@@ -348,6 +365,26 @@ class SmartClothingEngine:
                 outer_idx = self.max_layers - 1
                 if ensemble["torso"][outer_idx] is None:
                     ensemble["torso"][outer_idx] = rain_gear[0]["id"]
+
+        # Cold weather: add head and hand coverage when target_clo is high
+        # target_clo > 1.3 roughly corresponds to temperatures below ~10°C
+        if target_clo > 1.3:
+            # Add headwear if not present
+            if ensemble["head"][0] is None:
+                headwear = [i for i in filtered_inv
+                            if i.get('slot') == 'head'
+                            and i.get('fit') == 'base']
+                if headwear:
+                    # Pick warmest option for cold weather
+                    ensemble["head"][0] = sorted(headwear, key=lambda x: -x['clo'])[0]['id']
+
+            # Add gloves if not present
+            if ensemble["hands"][0] is None:
+                gloves = [i for i in filtered_inv
+                          if i.get('slot') == 'hands'
+                          and i.get('fit') == 'base']
+                if gloves:
+                    ensemble["hands"][0] = sorted(gloves, key=lambda x: -x['clo'])[0]['id']
 
         # Iterative adjustment (more iterations for complex ensembles)
         for _ in range(50):
@@ -440,16 +477,44 @@ class SmartClothingEngine:
         return False
 
     def _remove_optional(self, ensemble: Ensemble) -> bool:
-        """Remove optional layers (accessories, outer layers) to reduce warmth."""
-        remove_priority = [
+        """
+        Remove optional layers (accessories, outer layers) to reduce warmth.
+
+        Called when the ensemble is too warm (achieved_clo > target_clo).
+        Items are removed in priority order, simulating how people undress:
+        accessories first, then outer layers.
+
+        Returns:
+            True if an item was removed, False if nothing could be removed.
+        """
+        # Priority order for removal (first = removed first):
+        # 1. Accessories (gloves, hat, scarf) - easy to take off
+        # 2. Torso layers from outer to mid (index max-1 down to 1)
+        # 3. Socks (feet[0])
+        # 4. Legs layers from outer to mid (index max-1 down to 1)
+        #
+        # NOT removed: torso[0] (base layer), and REQUIRED_POSITIONS
+        # (legs[0]=underwear, feet[1]=shoes)
+        remove_priority: list[tuple[str, int]] = [
             ("hands", 0),
             ("head", 0),
             ("neck", 0),
-            ("torso", self.max_layers - 1),
-            ("torso", self.max_layers - 2),
         ]
-
+        # Add torso layers from outer inward (skip base layer at index 0)
+        for i in range(self.max_layers - 1, 0, -1):
+            remove_priority.append(("torso", i))
+        # Socks
+        remove_priority.append(("feet", 0))
+        # Add legs layers from outer inward (skip base layer at index 0)
+        for i in range(self.max_layers - 1, 0, -1):
+            remove_priority.append(("legs", i))
+        # remove shirt
+        remove_priority.append(("torso", 0))
+        
         for slot, layer_idx in remove_priority:
+            # Don't remove required positions
+            if (slot, layer_idx) in REQUIRED_POSITIONS:
+                continue
             if ensemble[slot][layer_idx] is not None:
                 ensemble[slot][layer_idx] = None
                 return True
