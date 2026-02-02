@@ -19,7 +19,7 @@
 | Oberbekleidung | Rollkragenbluse (langarm) | Damen | 0.34 |
 | Hosen & Röcke | Shorts | Unisex | 0.06 |
 | Hosen & Röcke | Kurze Wanderhose | Unisex | 0.11 |
-| Hosen & Röcke| Leichte Hose | Unisex | 0.20 |
+| Hosen & Röcke | Leichte Hose | Unisex | 0.20 |
 | Hosen & Röcke | Normale Hose | Unisex | 0.25 |
 | Hosen & Röcke | Flanellhose | Unisex | 0.28 |
 | Kleider | Overall | Unisex | 0.28 |
@@ -63,7 +63,6 @@
 | Kleider | Ganzkörper-Schlafanzug mit Füßen | Unisex | 0.72 |
 | Mäntel | Bademantel (langarm, kurz) | Unisex | 0.41 |
 | Mäntel | Bademantel (langarm, lang) | Unisex | 0.53 |
-| Handschuhe | Handschuhe | Unisex | 0.05 |
 | Schuhe & Socken | Sandalen | Unisex | 0.02 |
 
 geschätzten Clo-Werten für verschiedene Kopfbedeckungen:

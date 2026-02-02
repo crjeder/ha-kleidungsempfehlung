@@ -1,80 +1,102 @@
-# Thermischer Komfort & Kleidungsauswahl – Baukasten
+# Thermal Comfort & Clothing Selection – Building Blocks
 
-**Kurzüberblick (Was ist drin?)**
+**Quick Overview**
 
-*   **Bausteine:** UV, Wind, Wetter, Aktivität, Person (Alter, Geschlecht, Größe, Masse, KFA), **Präferenz**
-*   **Zielgröße:** erforderliche **clo** (Kleidungsisolation) bei **PMV ≈ 0** (thermisch neutral)
-*   **Modellkern:** **ISO 7730/ASHRAE 55 (PMV/PPD)** mit Konvektion/Strahlung/Verdunstung
-*   **Overlays:** alters-/geschlechts-/kompositionsbedingte Anpassungen + **Personal Comfort**
-*   **Output:** clo‑Empfehlung, Sensitivitäten (RH, Wind, Strahlung), UV‑Schutz
+*   **Components:** UV, Wind, Weather, Activity, Person (Age, Gender, Height, Mass, Body Fat), **Preference**
+*   **Target:** required **clo** (clothing insulation) at **PMV ≈ 0** (thermally neutral)
+*   **Core Model:** **ISO 7730/ASHRAE 55 (PMV/PPD)** with convection/radiation/evaporation
+*   **Overlays:** age/gender/body composition adjustments + **Personal Comfort**
+*   **Output:** clo recommendation, sensitivities (RH, wind, radiation), UV protection
 
-> **Persönliches Empfinden:** Lieber kälter oder wärmer? → auf **kälteste/wärmste** erwartete Situation optimieren.
+> **Personal Preference:** Prefer cooler or warmer? → optimize for **coldest/warmest** expected situation.
 
-## Integration für Home Assistant
+## Home Assistant Integration
 
-Diese Custom Integration stellt einen Sensor `sensor.kleidungsempfehlung` bereit, der basierend auf konfigurierbaren Eingangs-Sensoren (z. B. Temperatur, Wind, Luftfeuchte, UV‑Index, Aktivität, Körperdaten) eine Kleidungs-Isolations-Empfehlung (clo) berechnet.
+This custom integration provides a sensor `sensor.clothing_recommendation` that calculates a clothing insulation recommendation (clo) based on configurable input sensors (e.g., temperature, wind, humidity, UV index, activity, body data).
 
-Konfigurierbare Eingangs‑Sensoren (über die Integrations‑UI auswählbar):
-- UV (UV‑Index)
-- Persönliches_Empfinden (z. B. "kälter", "wärmer", "neutral")
-- Geschlecht (string: "male"/"female" optional)
-- Alter (Jahre)
-- Gewicht (kg)
-- Größe (m)
-- Wind (m/s)
-- Temperatur (°C)
-- Luftfeuchtigkeit (%)
-- Sonnenstrahlung (optional; °C-Äquivalent / globalstrahlung)
+Configurable input sensors (selectable via integration UI):
+- UV (UV index)
+- personal_preference (e.g., "cooler", "warmer", "neutral")
+- gender (string: "male"/"female", optional)
+- age (years)
+- weight (kg)
+- height (m)
+- wind (m/s)
+- temperature (°C)
+- humidity (%)
+- solar_radiation (optional; perceived temperature increase from direct sun in °C, e.g., +5)
 
-Output des Sensors:
-- state: empfohlene clo (float)
-- attributes: details (detaillierte Berechnungsdaten), verwendete Eingangs‑Entity-IDs, last_updated, pmv/ppd usw.
+Sensor output:
+- state: recommended clo (float)
+- attributes: details (detailed calculation data), input entity IDs used, last_updated, pmv/ppd, etc.
 
-Wichtig: Die Integration basiert auf Norm‑Näherungen und Heuristiken aus dem Gist. Für präzise oder normkonforme Anwendungen bitte die ISO/ASHRAE‑Dokumente prüfen.
+Important: This integration is based on standard approximations and heuristics. For precise or standards-compliant applications, please refer to the ISO/ASHRAE documents.
 
 ## Installation
 
-1. Lege das Verzeichnis `custom_components/kleidungsempfehlung` in deinem Home Assistant config‑Verzeichnis an.
-2. Kopiere die Dateien aus diesem Repo in das Verzeichnis.
-3. Neustart Home Assistant.
-4. Füge die Integration über Einstellungen → Geräte & Dienste → Integration hinzufügen → Kleidungsempfehlung hinzu.
-5. Wähle die entsprechenden Sensor‑Entities für Temperatur, Wind, RH, etc. in der GUI.
+1. Create the directory `custom_components/clothing_recommendation` in your Home Assistant config directory.
+2. Copy the files from this repo into that directory.
+3. Restart Home Assistant.
+4. Add the integration via Settings → Devices & Services → Add Integration → Clothing Recommendation.
+5. Select the appropriate sensor entities for temperature, wind, RH, etc. in the GUI.
 
-## Hinweise & Weiterentwicklung
+## Notes & Development
 
 
-### Kleidugnsstück
-JSON Schema für Kleidugnsstück
-| Feld | Typ | Beschreibung |
+### Clothing Item
+JSON Schema for Clothing Item
+| Field | Type | Description |
 |---|---|---|
-| id | String | Eindeutiger Name (z.B. heavy_wool_sweater). |
+| id | String | Unique identifier (e.g., heavy_wool_sweater). |
 | name | String | Friendly name |
-| category | Enum | under_bottom, under_top, torso_base, torso_mid, torso_outer, legs, neck, hands, head, feet, shoes. |
-| layer | Enum | base, mid, outer (Wichtig für die Schicht-Logik). |
-| clo | Float | Isolationswert im trockenen Zustand. |
-| coverage | Enum | short (T-Shirt/Shorts) oder full (Langarm/Lange Hose). |
-| waterproof | Bool | true, wenn es als Regenschutz fungiert. |
-| windproof | Bool | true, wenn es Wind blockiert (z.B. Hardshell, Windbreaker). |
-| coverage | Enum | low, medium, full: the respective coverage of the body area
-| upf | Integer | UV Protection Factor
+| slot | Enum | head, neck, torso, hands, legs, feet – the body area this item covers. |
+| fit | Enum | base, mid, outer – where this item fits in the layering system (see below). |
+| clo | Float | Insulation value when dry. |
+| waterproof | Bool | true if it functions as rain protection. |
+| windproof | Bool | true if it blocks wind (e.g., hardshell, windbreaker). |
+| coverage | Enum | low, medium, full: coverage level of the body area (e.g., tank-top=low, t-shirt=medium, long-sleeve=full). |
+| upf | Integer | UV Protection Factor |
 | picture | String | URI to image |
-| dscription | String | Short description |
+| description | String | Short description |
 | comment | String | Additional text |
 
+#### Fit Values (Layering Suitability)
+The `fit` field indicates which layer positions an item is suitable for:
+
+| fit | Suitable Positions | Description |
+|-----|-------------------|-------------|
+| base | Index 0 only | Worn directly on skin (underwear, base layers, socks) |
+| mid | Index 1 to MAX_LAYERS-2 | Insulation layers that can stack (shirts, sweaters, fleece) |
+| outer | Index MAX_LAYERS-1 only | Outermost protective layer (jackets, shells, rain gear) |
+
+Example with `MAX_LAYERS = 4`:
+- `fit: base` → can only be placed at index 0
+- `fit: mid` → can be placed at index 1 or 2
+- `fit: outer` → can only be placed at index 3
+
 ### Person
-Eine person hat folgende Slots für Kleidungsstücke
-- head
-- neck
-- torso
-- hand
-- bottom
-- legs
-- feet
-die in layern übereinander belegt werden können
+A person has the following slots for clothing items. Each slot is an array of length `MAX_LAYERS = 4` (index 0 = base, 1 = mid, 2 = outer, 3 = shell):
+
+| Slot | Description |
+|------|-------------|
+| head | Headwear (beanie, hat, etc.) |
+| neck | Neck/collar (scarf, buff, etc.) |
+| torso | Upper body (undershirt → shirt → sweater → jacket) |
+| hands | Hands (liner → gloves → mittens) |
+| legs | Legs (underwear → pants → overpants) |
+| feet | Feet (socks → shoes → gaiters) |
+
+Example:
+```json
+{
+  "torso": ["t_shirt_synthetic", "fleece_mid", "hardshell", null],
+  "legs": ["boxer_synthetic", "pants_standard", null, null]
+}
+```
 
 
-## Quellen
-Siehe Header im eingebetteten Python-Code für Referenzen zu ISO 7730 / ASHRAE 55, WHO UV‑Index, etc.
+## References
+See header in embedded Python code for references to ISO 7730 / ASHRAE 55, WHO UV Index, etc.
 
-# Warnung!
-Das Repository kann KI-generierte Daten enthalten!
+# Warning!
+This repository may contain AI-generated data!
