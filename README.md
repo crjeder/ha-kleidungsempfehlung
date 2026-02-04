@@ -95,8 +95,189 @@ Example:
 ```
 
 
+## Thermal Calculation Model (Fanger PMV)
+
+This engine uses the **Fanger Predicted Mean Vote (PMV) model** from ISO 7730 [1] to calculate the required clothing insulation for thermal comfort.
+
+### The PMV Model
+
+The PMV model predicts thermal sensation on a 7-point scale:
+
+| PMV | Thermal Sensation |
+|-----|-------------------|
+| -3 | Cold |
+| -2 | Cool |
+| -1 | Slightly cool |
+| **0** | **Neutral (target)** |
+| +1 | Slightly warm |
+| +2 | Warm |
+| +3 | Hot |
+
+The model finds the clothing insulation (CLO) that achieves **PMV = 0** (thermal neutrality).
+
+### Heat Balance Equation
+
+The PMV model is based on human thermal balance:
+
+```
+H = Q_skin + Q_respiration + Q_radiation + Q_convection
+```
+
+Where:
+- **H** = Internal heat production [W/m²] = M - W (metabolic rate minus external work)
+- **Q_skin** = Heat loss through skin (diffusion + sweating)
+- **Q_respiration** = Heat loss through breathing (latent + dry)
+- **Q_radiation** = Radiative heat exchange with surroundings
+- **Q_convection** = Convective heat exchange with air
+
+### Key Equations
+
+**Skin heat loss (diffusion):**
+```
+Q_diff = 3.05×10⁻³ × (5733 - 6.99×H - Pa)
+```
+
+**Skin heat loss (sweating, if H > 58.15 W/m²):**
+```
+Q_sweat = 0.42 × (H - 58.15)
+```
+
+**Respiratory heat loss:**
+```
+Q_resp = 1.7×10⁻⁵ × M × (5867 - Pa) + 0.0014 × M × (34 - Ta)
+```
+
+**Radiative heat loss:**
+```
+Q_rad = 3.96×10⁻⁸ × fcl × [(Tcl + 273)⁴ - (Tr + 273)⁴]
+```
+
+**Convective heat loss:**
+```
+Q_conv = fcl × hc × (Tcl - Ta)
+```
+
+**Clothing area factor:**
+```
+fcl = 1.00 + 1.290×Icl    for Icl ≤ 0.078 m²K/W
+fcl = 1.05 + 0.645×Icl    for Icl > 0.078 m²K/W
+```
+
+**Convective heat transfer coefficient:**
+```
+hc = max(2.38×|Tcl - Ta|^0.25, 12.1×√v)
+```
+
+**PMV calculation:**
+```
+PMV = (0.303 × e^(-0.036×M) + 0.028) × L
+```
+
+Where **L** is the thermal load (heat production minus heat losses).
+
+### Predicted Percentage Dissatisfied (PPD)
+
+PPD predicts the percentage of people who would feel thermally uncomfortable:
+
+```
+PPD = 100 - 95 × e^(-0.03353×PMV⁴ - 0.2179×PMV²)
+```
+
+| PMV | PPD |
+|-----|-----|
+| 0 | 5% (minimum) |
+| ±0.5 | 10% |
+| ±1.0 | 26% |
+| ±2.0 | 77% |
+
+### Input Parameters
+
+| Parameter | Symbol | Unit | Description |
+|-----------|--------|------|-------------|
+| Air temperature | Ta | °C | Ambient air temperature |
+| Radiant temperature | Tr | °C | Mean radiant temperature (default: Ta) |
+| Air velocity | v | m/s | Wind speed |
+| Relative humidity | RH | % | Relative humidity (default: 50%) |
+| Metabolic rate | M | Met | Activity level (1 Met = 58.2 W/m²) |
+| Clothing insulation | Icl | clo | Clothing thermal resistance |
+
+### Metabolic Rates (Met)
+
+| Activity | Met | W/m² |
+|----------|-----|------|
+| Seated, relaxed | 1.0 | 58.2 |
+| Standing, light work | 1.2 | 69.8 |
+| Walking 4 km/h | 2.0 | 116.4 |
+| Walking 5 km/h | 2.6 | 151.3 |
+| Running 10 km/h | 4.0 | 232.8 |
+
+Source: ISO 8996 [5]
+
+### Layering Factor
+
+When multiple clothing layers are worn, the effective insulation is reduced due to compression and air gap reduction [4]:
+
+```
+CLO_effective = CLO_total × λ
+```
+
+Where **λ = 0.835** (approximately 83.5% efficiency for layered clothing).
+
+### Two-Phase Optimization Algorithm
+
+The clothing selection uses a balanced two-phase optimization:
+
+**Phase 1 - Balanced Distribution (Torso, Legs, Feet):**
+```
+Raw_CLO_target = (Target_CLO / λ) × 0.90
+Per_slot_target = Raw_CLO_target / 3
+```
+
+Each body region receives an equal share of the target insulation, creating realistic combinations.
+
+**Phase 2 - Fine-tuning (Head, Hands, Neck):**
+Accessories are added/adjusted to reach the final target within ±0.05 clo tolerance.
+
+### Example Calculations
+
+**Scenario: Walking at 15°C, 50% RH, Met=2.0**
+```
+Input: Ta=15°C, Tr=15°C, v=0.1m/s, RH=50%, M=2.0 Met
+PMV solver finds: Icl = 0.88 clo for PMV ≈ 0
+Result: PMV = -0.06, PPD = 5%
+```
+
+**Scenario: Sitting at 20°C, 50% RH, Met=1.0**
+```
+Input: Ta=20°C, Tr=20°C, v=0.1m/s, RH=50%, M=1.0 Met
+PMV solver finds: Icl = 1.50 clo for PMV ≈ 0
+Result: PMV = -0.04, PPD = 5%
+```
+
+**Scenario: Walking at -15°C, 50% RH, Met=2.0**
+```
+Input: Ta=-15°C, Tr=-15°C, v=0.1m/s, RH=50%, M=2.0 Met
+PMV solver finds: Icl = 3.62 clo for PMV ≈ 0
+Result: PMV = -0.01, PPD = 5%
+```
+
 ## References
-See header in embedded Python code for references to ISO 7730 / ASHRAE 55, WHO UV Index, etc.
+
+[1] **ISO 7730:2005** - Ergonomics of the thermal environment — Analytical determination and interpretation of thermal comfort using calculation of the PMV and PPD indices and local thermal comfort criteria. International Organization for Standardization.
+
+[1a] **Fanger, P.O. (1970)** - Thermal Comfort: Analysis and Applications in Environmental Engineering. Danish Technical Press, Copenhagen. (Original work establishing the PMV/PPD model)
+
+[2] **Osczevski, R. & Bluestein, M. (2005)** - The new wind chill equivalent temperature chart. Bulletin of the American Meteorological Society, 86(10), 1453-1458. https://doi.org/10.1175/BAMS-86-10-1453
+
+[3] **Nikolopoulou, M. & Steemers, K. (2003)** - Thermal comfort and psychological adaptation as a guide for designing urban spaces. Energy and Buildings, 35(1), 95-101. https://doi.org/10.1016/S0378-7788(02)00084-1
+
+[4] **Havenith, G. (2002)** - The interaction between clothing insulation and thermoregulation. Exogenous Dermatology, 1(5), 221-230. https://doi.org/10.1159/000068802
+
+[5] **ISO 8996:2004** - Ergonomics of the thermal environment — Determination of metabolic rate. International Organization for Standardization.
+
+[6] **ASHRAE Standard 55-2020** - Thermal Environmental Conditions for Human Occupancy. American Society of Heating, Refrigerating and Air-Conditioning Engineers.
+
+[7] **WHO (2002)** - Global Solar UV Index: A Practical Guide. World Health Organization. ISBN 92-4-159007-6
 
 # Warning!
 This repository may contain AI-generated data!
