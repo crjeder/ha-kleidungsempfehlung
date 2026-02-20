@@ -1,0 +1,93 @@
+# Beispiel-Konfiguration für Kleidungsempfehlung Integration
+# Diese Einträge kommen in die configuration.yaml von Home Assistant
+
+kleidungsempfehlung:
+  # Name des Sensors (optional)
+  name: "Kleidungsempfehlung"
+
+  # Inventar einbinden (Pfad relativ zu config-Ordner)
+  inventory: !include inventory.yaml
+
+  # Engine-Konfiguration (optional)
+  max_layers: 4                    # Maximale Schichten pro Körperzone
+  solver: "ilp"                    # "ilp" (optimal) oder "heuristic" (schnell)
+  layering_factor: 0.835           # Effizienzfaktor für überlappende Schichten
+
+  # Basis-Outfit (optional) - Items die immer getragen werden
+  base_ensemble:
+    - slot: legs
+      layer: 0
+      item_id: boxer_synthetic
+      locked: false
+    - slot: feet
+      layer: 0
+      item_id: socks_standard
+      locked: false
+    - slot: feet
+      layer: 3
+      item_id: sneakers
+      locked: false
+
+  # Wetter-Sensoren (sensor_temperature ist erforderlich)
+  weather:
+    sensor_temperature: sensor.aussentemperatur      # Pflicht
+    sensor_temperature_high: sensor.tageshoechsttemperatur  # Optional: für Temperaturbereich
+    sensor_humidity: sensor.luftfeuchtigkeit         # Optional, default: 50%
+    sensor_wind: sensor.windgeschwindigkeit          # Optional, default: 0 m/s
+    sensor_rain: sensor.niederschlag                 # Optional, default: 0 mm/h
+    sensor_radiation: sensor.sonnenstrahlung         # Optional: für Strahlungstemperatur
+
+  # Person-Konfiguration (optional)
+  person:
+    sensor_activity: input_select.aktivitaet         # Aktivitätslevel (Met)
+    sensor_age: input_number.alter                   # Alter für Met-Anpassung
+    sensor_gender: input_select.geschlecht           # Geschlecht für Met-Anpassung
+    pmv_target: 0.0                                  # Ziel-PMV (-0.5 = kühler, +0.5 = wärmer)
+
+
+# ============================================================================
+# Beispiel Helper-Entities für Person-Konfiguration
+# ============================================================================
+
+input_select:
+  aktivitaet:
+    name: Aktivität
+    options:
+      - Ruhen/Sitzen
+      - Stehen/Leichte Arbeit
+      - Langsames Gehen
+      - Zügiges Gehen
+      - Sport/Laufen
+    initial: Stehen/Leichte Arbeit
+    icon: mdi:run
+
+  geschlecht:
+    name: Geschlecht
+    options:
+      - männlich
+      - weiblich
+    initial: männlich
+    icon: mdi:gender-male-female
+
+input_number:
+  alter:
+    name: Alter
+    min: 1
+    max: 120
+    step: 1
+    initial: 35
+    unit_of_measurement: "Jahre"
+    icon: mdi:calendar
+
+
+# ============================================================================
+# Met-Werte Referenz für sensor_activity:
+# ============================================================================
+# Ruhen/Sitzen:     1.0 Met
+# Schlafen:         0.8 Met
+# Stehen:           1.2 Met
+# Langsames Gehen:  2.0 Met
+# Zügiges Gehen:    3.0 Met
+# Sport/Laufen:     4.0 Met
+#
+# Alternativ kann der Sensor auch direkt einen numerischen Met-Wert liefern.

@@ -1,9 +1,13 @@
 {
   "domain": "kleidungsempfehlung",
   "name": "Kleidungsempfehlung",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "documentation": "https://github.com/crjeder/ha-kleidungsempfehlung",
-  "requirements": [],
+  "requirements": [
+    "pythermalcomfort>=2.8.0",
+    "scipy>=1.10.0",
+    "numpy>=1.24.0"
+  ],
   "dependencies": [],
   "codeowners": ["@crjeder"],
   "config_flow": true,

@@ -54,8 +54,6 @@ JSON Schema for Clothing Item
 | clo | Float | Insulation value when dry. |
 | waterproof | Bool | true if it functions as rain protection. |
 | windproof | Bool | true if it blocks wind (e.g., hardshell, windbreaker). |
-| coverage | Enum | low, medium, full: coverage level of the body area (e.g., tank-top=low, t-shirt=medium, long-sleeve=full). |
-| upf | Integer | UV Protection Factor |
 | picture | String | URI to image |
 | description | String | Short description |
 | comment | String | Additional text |

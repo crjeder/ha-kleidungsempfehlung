@@ -6,9 +6,7 @@
     "fit": "base",
     "clo": 0.04,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "low",
-    "upf": 5
+    "windproof": false
   },
   {
     "id": "boxer_synthetic",
@@ -17,9 +15,7 @@
     "fit": "base",
     "clo": 0.05,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "low",
-    "upf": 10
+    "windproof": false
   },
   {
     "id": "boxer_mesh",
@@ -28,9 +24,7 @@
     "fit": "base",
     "clo": 0.03,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "low",
-    "upf": 5
+    "windproof": false
   },
   {
     "id": "boxer_cotton",
@@ -39,20 +33,16 @@
     "fit": "base",
     "clo": 0.06,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "low",
-    "upf": 10
+    "windproof": false
   },
   {
     "id": "long_johns",
     "name": "Unterhose langes Bein",
     "slot": "legs",
     "fit": "base",
-    "clo": 0.10,
+    "clo": 0.1,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "full",
-    "upf": 15
+    "windproof": false
   },
   {
     "id": "undershirt_sleeveless",
@@ -61,9 +51,7 @@
     "fit": "base",
     "clo": 0.06,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "low",
-    "upf": 10
+    "windproof": false
   },
   {
     "id": "undershirt_longsleeve",
@@ -72,9 +60,7 @@
     "fit": "base",
     "clo": 0.12,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "full",
-    "upf": 15
+    "windproof": false
   },
   {
     "id": "ski_base_layer_light",
@@ -83,20 +69,16 @@
     "fit": "base",
     "clo": 0.15,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "full",
-    "upf": 30
+    "windproof": false
   },
   {
     "id": "ski_base_layer_heavy",
     "name": "Ski-Unterwaesche (dick)",
     "slot": "torso",
-    "fit": "base",    
-    "clo": 0.20,
+    "fit": "base",
+    "clo": 0.2,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "full",
-    "upf": 40
+    "windproof": false
   },
   {
     "id": "t_shirt_cotton_light",
@@ -105,20 +87,16 @@
     "fit": "mid",
     "clo": 0.08,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "medium",
-    "upf": 10
+    "windproof": false
   },
   {
     "id": "t_shirt_cotton_heavy",
     "name": "T-Shirt (Baumwolle dick)",
     "slot": "torso",
     "fit": "mid",
-    "clo": 0.10,
+    "clo": 0.1,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "medium",
-    "upf": 15
+    "windproof": false
   },
   {
     "id": "shirt_short_sleeve",
@@ -127,20 +105,16 @@
     "fit": "mid",
     "clo": 0.09,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "medium",
-    "upf": 15
+    "windproof": false
   },
   {
     "id": "shirt_light",
     "name": "Leichtes Hemd (langarm)",
     "slot": "torso",
     "fit": "mid",
-    "clo": 0.20,
+    "clo": 0.2,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "full",
-    "upf": 20
+    "windproof": false
   },
   {
     "id": "shirt_normal",
@@ -149,20 +123,16 @@
     "fit": "mid",
     "clo": 0.25,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "full",
-    "upf": 25
+    "windproof": false
   },
   {
     "id": "sweater_thin",
     "name": "Duenner Pullover",
     "slot": "torso",
     "fit": "mid",
-    "clo": 0.20,
+    "clo": 0.2,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "full",
-    "upf": 25
+    "windproof": false
   },
   {
     "id": "sweater_thick",
@@ -171,9 +141,7 @@
     "fit": "mid",
     "clo": 0.35,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "full",
-    "upf": 35
+    "windproof": false
   },
   {
     "id": "vest_insulated",
@@ -182,9 +150,7 @@
     "fit": "mid",
     "clo": 0.13,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "low",
-    "upf": 30
+    "windproof": false
   },
   {
     "id": "jacket_summer",
@@ -193,9 +159,7 @@
     "fit": "outer",
     "clo": 0.25,
     "waterproof": false,
-    "windproof": true,
-    "coverage": "full",
-    "upf": 30
+    "windproof": true
   },
   {
     "id": "jacket_normal",
@@ -204,31 +168,25 @@
     "fit": "outer",
     "clo": 0.35,
     "waterproof": false,
-    "windproof": true,
-    "coverage": "full",
-    "upf": 40
+    "windproof": true
   },
   {
     "id": "softshell",
     "name": "Softshell-Jacke",
     "slot": "torso",
     "fit": "outer",
-    "clo": 0.30,
+    "clo": 0.3,
     "waterproof": false,
-    "windproof": true,
-    "coverage": "full",
-    "upf": 40
+    "windproof": true
   },
   {
     "id": "hardshell",
     "name": "Hardshell / Regenjacke",
     "slot": "torso",
     "fit": "outer",
-    "clo": 0.10,
+    "clo": 0.1,
     "waterproof": true,
-    "windproof": true,
-    "coverage": "full",
-    "upf": 50
+    "windproof": true
   },
   {
     "id": "windbreaker",
@@ -237,9 +195,7 @@
     "fit": "outer",
     "clo": 0.08,
     "waterproof": false,
-    "windproof": true,
-    "coverage": "full",
-    "upf": 40
+    "windproof": true
   },
   {
     "id": "down_jacket",
@@ -248,42 +204,34 @@
     "fit": "outer",
     "clo": 0.55,
     "waterproof": false,
-    "windproof": true,
-    "coverage": "full",
-    "upf": 50
+    "windproof": true
   },
   {
     "id": "coat",
     "name": "Mantel",
     "slot": "torso",
     "fit": "outer",
-    "clo": 0.60,
+    "clo": 0.6,
     "waterproof": false,
-    "windproof": true,
-    "coverage": "full",
-    "upf": 50
+    "windproof": true
   },
   {
     "id": "parka",
     "name": "Parka",
     "slot": "torso",
     "fit": "outer",
-    "clo": 0.70,
+    "clo": 0.7,
     "waterproof": true,
-    "windproof": true,
-    "coverage": "full",
-    "upf": 50
+    "windproof": true
   },
   {
     "id": "winter_jacket_insulated",
     "name": "Winterjacke (gefuettert)",
     "slot": "torso",
     "fit": "outer",
-    "clo": 1.00,
+    "clo": 1.0,
     "waterproof": true,
-    "windproof": true,
-    "coverage": "full",
-    "upf": 50
+    "windproof": true
   },
   {
     "id": "shorts",
@@ -292,9 +240,7 @@
     "fit": "mid",
     "clo": 0.06,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "low",
-    "upf": 15
+    "windproof": false
   },
   {
     "id": "hiking_shorts",
@@ -303,9 +249,7 @@
     "fit": "outer",
     "clo": 0.11,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "low",
-    "upf": 30
+    "windproof": false
   },
   {
     "id": "pants_light",
@@ -314,20 +258,16 @@
     "fit": "outer",
     "clo": 0.15,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "full",
-    "upf": 30
+    "windproof": false
   },
   {
     "id": "pants_standard",
     "name": "Normale Hose",
     "slot": "legs",
     "fit": "outer",
-    "clo": 0.20,
+    "clo": 0.2,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "full",
-    "upf": 35
+    "windproof": false
   },
   {
     "id": "jeans",
@@ -336,9 +276,7 @@
     "fit": "outer",
     "clo": 0.25,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "full",
-    "upf": 40
+    "windproof": false
   },
   {
     "id": "joggers_light",
@@ -347,20 +285,16 @@
     "fit": "mid",
     "clo": 0.25,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "full",
-    "upf": 25
+    "windproof": false
   },
   {
     "id": "ski_pants_insulated",
     "name": "Skihose (isoliert)",
     "slot": "legs",
     "fit": "outer",
-    "clo": 0.70,
+    "clo": 0.7,
     "waterproof": true,
-    "windproof": true,
-    "coverage": "full",
-    "upf": 50
+    "windproof": true
   },
   {
     "id": "socks_thin",
@@ -369,9 +303,7 @@
     "fit": "base",
     "clo": 0.02,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "low",
-    "upf": 5
+    "windproof": false
   },
   {
     "id": "socks_standard",
@@ -380,9 +312,7 @@
     "fit": "base",
     "clo": 0.03,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "low",
-    "upf": 10
+    "windproof": false
   },
   {
     "id": "socks_ankle_thick",
@@ -391,9 +321,7 @@
     "fit": "base",
     "clo": 0.05,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "low",
-    "upf": 15
+    "windproof": false
   },
   {
     "id": "socks_long_thick",
@@ -402,9 +330,7 @@
     "fit": "base",
     "clo": 0.06,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "medium",
-    "upf": 20
+    "windproof": false
   },
   {
     "id": "socks_wool",
@@ -413,9 +339,7 @@
     "fit": "base",
     "clo": 0.08,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "medium",
-    "upf": 20
+    "windproof": false
   },
   {
     "id": "sandals",
@@ -424,9 +348,7 @@
     "fit": "outer",
     "clo": 0.02,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "low",
-    "upf": 0
+    "windproof": false
   },
   {
     "id": "shoes_thin_sole",
@@ -435,9 +357,7 @@
     "fit": "outer",
     "clo": 0.02,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "medium",
-    "upf": 30
+    "windproof": false
   },
   {
     "id": "shoes_thick_sole",
@@ -446,9 +366,7 @@
     "fit": "outer",
     "clo": 0.04,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "medium",
-    "upf": 35
+    "windproof": false
   },
   {
     "id": "sneakers",
@@ -457,20 +375,16 @@
     "fit": "outer",
     "clo": 0.03,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "medium",
-    "upf": 30
+    "windproof": false
   },
-    {
+  {
     "id": "fleece_midlayer",
     "name": "Ski-Pulli / Fleece",
     "slot": "torso",
     "fit": "mid",
     "clo": 0.4,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "full",
-    "upf": 30
+    "windproof": false
   },
   {
     "id": "boots",
@@ -479,9 +393,7 @@
     "fit": "outer",
     "clo": 0.05,
     "waterproof": false,
-    "windproof": true,
-    "coverage": "full",
-    "upf": 50
+    "windproof": true
   },
   {
     "id": "winter_boots",
@@ -490,9 +402,7 @@
     "fit": "outer",
     "clo": 0.15,
     "waterproof": true,
-    "windproof": true,
-    "coverage": "full",
-    "upf": 50
+    "windproof": true
   },
   {
     "id": "cap_thick",
@@ -501,9 +411,7 @@
     "fit": "outer",
     "clo": 0.02,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "low",
-    "upf": 30
+    "windproof": false
   },
   {
     "id": "bandana",
@@ -512,9 +420,7 @@
     "fit": "base",
     "clo": 0.01,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "low",
-    "upf": 15
+    "windproof": false
   },
   {
     "id": "headband",
@@ -523,9 +429,7 @@
     "fit": "base",
     "clo": 0.01,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "low",
-    "upf": 15
+    "windproof": false
   },
   {
     "id": "beanie_light",
@@ -534,20 +438,16 @@
     "fit": "outer",
     "clo": 0.03,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "medium",
-    "upf": 20
+    "windproof": false
   },
   {
     "id": "beanie_thick",
     "name": "Strickmuetze (dick)",
     "slot": "head",
     "fit": "outer",
-    "clo": 0.10,
+    "clo": 0.1,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "medium",
-    "upf": 30
+    "windproof": false
   },
   {
     "id": "wool_hat_thick",
@@ -556,9 +456,7 @@
     "fit": "outer",
     "clo": 0.08,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "medium",
-    "upf": 30
+    "windproof": false
   },
   {
     "id": "balaclava_thin",
@@ -567,9 +465,7 @@
     "fit": "base",
     "clo": 0.07,
     "waterproof": false,
-    "windproof": true,
-    "coverage": "full",
-    "upf": 35
+    "windproof": true
   },
   {
     "id": "helmet_liner",
@@ -578,9 +474,7 @@
     "fit": "base",
     "clo": 0.03,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "medium",
-    "upf": 20
+    "windproof": false
   },
   {
     "id": "cotton_scarf_thin",
@@ -589,9 +483,7 @@
     "fit": "base",
     "clo": 0.05,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "low",
-    "upf": 15
+    "windproof": false
   },
   {
     "id": "liner_gloves_thin",
@@ -600,9 +492,7 @@
     "fit": "base",
     "clo": 0.05,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "full",
-    "upf": 20
+    "windproof": false
   },
   {
     "id": "ski_gloves_thick",
@@ -611,9 +501,7 @@
     "fit": "outer",
     "clo": 0.07,
     "waterproof": true,
-    "windproof": true,
-    "coverage": "full",
-    "upf": 50
+    "windproof": true
   },
   {
     "id": "umbrella",
@@ -622,42 +510,34 @@
     "fit": "outer",
     "clo": 0.0,
     "waterproof": true,
-    "windproof": false,
-    "coverage": "full",
-    "upf": 50
+    "windproof": false
   },
-    {
+  {
     "id": "ski_mittens_thick",
     "name": "Skifaustlinge (dick)",
     "slot": "hands",
     "fit": "outer",
     "clo": 0.01,
     "waterproof": true,
-    "windproof": true,
-    "coverage": "full",
-    "upf": 50
+    "windproof": true
   },
-    {
+  {
     "id": "ski_socks_thick",
     "name": "Ski-Strümpfe (dick)",
     "slot": "feet",
     "fit": "mid",
     "clo": 0.1,
     "waterproof": true,
-    "windproof": true,
-    "coverage": "full",
-    "upf": 50
+    "windproof": true
   },
-    {
+  {
     "id": "jacket_summer",
     "name": "Leichte Sommerjacke",
     "slot": "torso",
     "fit": "outer",
     "clo": 0.25,
     "waterproof": false,
-    "windproof": true,
-    "coverage": "full",
-    "upf": 30
+    "windproof": true
   },
   {
     "id": "rain_jacket",
@@ -666,9 +546,7 @@
     "fit": "outer",
     "clo": 0.25,
     "waterproof": true,
-    "windproof": true,
-    "coverage": "full",
-    "upf": 30
+    "windproof": true
   },
   {
     "id": "snow_boots",
@@ -677,19 +555,15 @@
     "fit": "outer",
     "clo": 0.4,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "medium",
-    "upf": 35
+    "windproof": false
   },
-    {
+  {
     "id": "ski_helmet",
     "name": "Ski-Helm",
     "slot": "head",
     "fit": "outer",
     "clo": 0.1,
     "waterproof": false,
-    "windproof": false,
-    "coverage": "medium",
-    "upf": 30
+    "windproof": false
   }
 ]

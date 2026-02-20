@@ -1,0 +1,444 @@
+# Kleidungs-Inventar für Home Assistant Kleidungsempfehlung
+# Einbinden in configuration.yaml mit: inventory: !include inventory.yaml
+
+- id: briefs_men
+  name: Slip / Unterhose (Herren)
+  slot: legs
+  fit: base
+  clo: 0.04
+  waterproof: false
+  windproof: false
+- id: boxer_synthetic
+  name: Boxershort (Mikrofaser)
+  slot: legs
+  fit: base
+  clo: 0.05
+  waterproof: false
+  windproof: false
+- id: boxer_mesh
+  name: Boxershort (Mesh)
+  slot: legs
+  fit: base
+  clo: 0.03
+  waterproof: false
+  windproof: false
+- id: boxer_cotton
+  name: Boxershort (Baumwolle)
+  slot: legs
+  fit: base
+  clo: 0.06
+  waterproof: false
+  windproof: false
+- id: long_johns
+  name: Unterhose langes Bein
+  slot: legs
+  fit: base
+  clo: 0.1
+  waterproof: false
+  windproof: false
+- id: undershirt_sleeveless
+  name: Unterhemd aermellos
+  slot: torso
+  fit: base
+  clo: 0.06
+  waterproof: false
+  windproof: false
+- id: undershirt_longsleeve
+  name: Unterhemd mit langen Aermeln
+  slot: torso
+  fit: base
+  clo: 0.12
+  waterproof: false
+  windproof: false
+- id: ski_base_layer_light
+  name: Ski-Unterwaesche Set (duenn)
+  slot: torso
+  fit: base
+  clo: 0.15
+  waterproof: false
+  windproof: false
+- id: ski_base_layer_heavy
+  name: Ski-Unterwaesche (dick)
+  slot: torso
+  fit: base
+  clo: 0.2
+  waterproof: false
+  windproof: false
+- id: t_shirt_cotton_light
+  name: T-Shirt (Baumwolle duenn)
+  slot: torso
+  fit: mid
+  clo: 0.08
+  waterproof: false
+  windproof: false
+- id: t_shirt_cotton_heavy
+  name: T-Shirt (Baumwolle dick)
+  slot: torso
+  fit: mid
+  clo: 0.1
+  waterproof: false
+  windproof: false
+- id: shirt_short_sleeve
+  name: Kurzarm-Hemd
+  slot: torso
+  fit: mid
+  clo: 0.09
+  waterproof: false
+  windproof: false
+- id: shirt_light
+  name: Leichtes Hemd (langarm)
+  slot: torso
+  fit: mid
+  clo: 0.2
+  waterproof: false
+  windproof: false
+- id: shirt_normal
+  name: Normales Hemd (langarm)
+  slot: torso
+  fit: mid
+  clo: 0.25
+  waterproof: false
+  windproof: false
+- id: sweater_thin
+  name: Duenner Pullover
+  slot: torso
+  fit: mid
+  clo: 0.2
+  waterproof: false
+  windproof: false
+- id: sweater_thick
+  name: Dicker Pullover
+  slot: torso
+  fit: mid
+  clo: 0.35
+  waterproof: false
+  windproof: false
+- id: vest_insulated
+  name: Weste (isoliert)
+  slot: torso
+  fit: mid
+  clo: 0.13
+  waterproof: false
+  windproof: false
+- id: jacket_summer
+  name: Leichte Sommerjacke
+  slot: torso
+  fit: outer
+  clo: 0.25
+  waterproof: false
+  windproof: true
+- id: jacket_normal
+  name: Jacke
+  slot: torso
+  fit: outer
+  clo: 0.35
+  waterproof: false
+  windproof: true
+- id: softshell
+  name: Softshell-Jacke
+  slot: torso
+  fit: outer
+  clo: 0.3
+  waterproof: false
+  windproof: true
+- id: hardshell
+  name: Hardshell / Regenjacke
+  slot: torso
+  fit: outer
+  clo: 0.1
+  waterproof: true
+  windproof: true
+- id: windbreaker
+  name: Windbreaker
+  slot: torso
+  fit: outer
+  clo: 0.08
+  waterproof: false
+  windproof: true
+- id: down_jacket
+  name: Daunenjacke
+  slot: torso
+  fit: outer
+  clo: 0.55
+  waterproof: false
+  windproof: true
+- id: coat
+  name: Mantel
+  slot: torso
+  fit: outer
+  clo: 0.6
+  waterproof: false
+  windproof: true
+- id: parka
+  name: Parka
+  slot: torso
+  fit: outer
+  clo: 0.7
+  waterproof: true
+  windproof: true
+- id: winter_jacket_insulated
+  name: Winterjacke (gefuettert)
+  slot: torso
+  fit: outer
+  clo: 1.0
+  waterproof: true
+  windproof: true
+- id: shorts
+  name: Shorts
+  slot: legs
+  fit: mid
+  clo: 0.06
+  waterproof: false
+  windproof: false
+- id: hiking_shorts
+  name: Kurze Wanderhose
+  slot: legs
+  fit: outer
+  clo: 0.11
+  waterproof: false
+  windproof: false
+- id: pants_light
+  name: Leichte Hose
+  slot: legs
+  fit: outer
+  clo: 0.15
+  waterproof: false
+  windproof: false
+- id: pants_standard
+  name: Normale Hose
+  slot: legs
+  fit: outer
+  clo: 0.2
+  waterproof: false
+  windproof: false
+- id: jeans
+  name: Jeans
+  slot: legs
+  fit: outer
+  clo: 0.25
+  waterproof: false
+  windproof: false
+- id: joggers_light
+  name: Jogginghose (duenn)
+  slot: legs
+  fit: mid
+  clo: 0.25
+  waterproof: false
+  windproof: false
+- id: ski_pants_insulated
+  name: Skihose (isoliert)
+  slot: legs
+  fit: outer
+  clo: 0.7
+  waterproof: true
+  windproof: true
+- id: socks_thin
+  name: Socken (duenn)
+  slot: feet
+  fit: base
+  clo: 0.02
+  waterproof: false
+  windproof: false
+- id: socks_standard
+  name: Socken (normal)
+  slot: feet
+  fit: base
+  clo: 0.03
+  waterproof: false
+  windproof: false
+- id: socks_ankle_thick
+  name: Dicke Knoechelsocken
+  slot: feet
+  fit: base
+  clo: 0.05
+  waterproof: false
+  windproof: false
+- id: socks_long_thick
+  name: Dicke lange Socken
+  slot: feet
+  fit: base
+  clo: 0.06
+  waterproof: false
+  windproof: false
+- id: socks_wool
+  name: Wollsocken
+  slot: feet
+  fit: base
+  clo: 0.08
+  waterproof: false
+  windproof: false
+- id: sandals
+  name: Sandalen
+  slot: feet
+  fit: outer
+  clo: 0.02
+  waterproof: false
+  windproof: false
+- id: shoes_thin_sole
+  name: Schuhe (duenne Sohle)
+  slot: feet
+  fit: outer
+  clo: 0.02
+  waterproof: false
+  windproof: false
+- id: shoes_thick_sole
+  name: Schuhe (dicke Sohle)
+  slot: feet
+  fit: outer
+  clo: 0.04
+  waterproof: false
+  windproof: false
+- id: sneakers
+  name: Sneakers
+  slot: feet
+  fit: outer
+  clo: 0.03
+  waterproof: false
+  windproof: false
+- id: fleece_midlayer
+  name: Ski-Pulli / Fleece
+  slot: torso
+  fit: mid
+  clo: 0.4
+  waterproof: false
+  windproof: false
+- id: boots
+  name: Stiefel
+  slot: feet
+  fit: outer
+  clo: 0.05
+  waterproof: false
+  windproof: true
+- id: winter_boots
+  name: Winterstiefel
+  slot: feet
+  fit: outer
+  clo: 0.15
+  waterproof: true
+  windproof: true
+- id: cap_thick
+  name: Baseballcap (dick)
+  slot: head
+  fit: outer
+  clo: 0.02
+  waterproof: false
+  windproof: false
+- id: bandana
+  name: Bandana / Kopftuch
+  slot: head
+  fit: base
+  clo: 0.01
+  waterproof: false
+  windproof: false
+- id: headband
+  name: Stirnband
+  slot: head
+  fit: base
+  clo: 0.01
+  waterproof: false
+  windproof: false
+- id: beanie_light
+  name: Leichte Strickmuetze / Beanie
+  slot: head
+  fit: outer
+  clo: 0.03
+  waterproof: false
+  windproof: false
+- id: beanie_thick
+  name: Strickmuetze (dick)
+  slot: head
+  fit: outer
+  clo: 0.1
+  waterproof: false
+  windproof: false
+- id: wool_hat_thick
+  name: Wollmuetze (dick)
+  slot: head
+  fit: outer
+  clo: 0.08
+  waterproof: false
+  windproof: false
+- id: balaclava_thin
+  name: Balaclava (duenn)
+  slot: head
+  fit: base
+  clo: 0.07
+  waterproof: false
+  windproof: true
+- id: helmet_liner
+  name: Helm-Unterziehmuetze
+  slot: head
+  fit: base
+  clo: 0.03
+  waterproof: false
+  windproof: false
+- id: cotton_scarf_thin
+  name: Baumwollhalstuch (duenn)
+  slot: neck
+  fit: base
+  clo: 0.05
+  waterproof: false
+  windproof: false
+- id: liner_gloves_thin
+  name: Liner-Handschuhe (duenn)
+  slot: hands
+  fit: base
+  clo: 0.05
+  waterproof: false
+  windproof: false
+- id: ski_gloves_thick
+  name: Skihandschuhe (dick)
+  slot: hands
+  fit: outer
+  clo: 0.07
+  waterproof: true
+  windproof: true
+- id: umbrella
+  name: Regenschirm
+  slot: hands
+  fit: outer
+  clo: 0.0
+  waterproof: true
+  windproof: false
+- id: ski_mittens_thick
+  name: Skifaustlinge (dick)
+  slot: hands
+  fit: outer
+  clo: 0.01
+  waterproof: true
+  windproof: true
+- id: ski_socks_thick
+  name: Ski-Strümpfe (dick)
+  slot: feet
+  fit: mid
+  clo: 0.1
+  waterproof: true
+  windproof: true
+- id: jacket_summer
+  name: Leichte Sommerjacke
+  slot: torso
+  fit: outer
+  clo: 0.25
+  waterproof: false
+  windproof: true
+- id: rain_jacket
+  name: Leichte Regenjacke
+  slot: torso
+  fit: outer
+  clo: 0.25
+  waterproof: true
+  windproof: true
+- id: snow_boots
+  name: Dicke Schneestiefel
+  slot: feet
+  fit: outer
+  clo: 0.4
+  waterproof: false
+  windproof: false
+- id: ski_helmet
+  name: Ski-Helm
+  slot: head
+  fit: outer
+  clo: 0.1
+  waterproof: false
+  windproof: false
