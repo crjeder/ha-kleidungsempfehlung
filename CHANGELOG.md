@@ -6,6 +6,15 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-03-15
+
+### Fixed
+- **Heuristic solver: hardcoded item IDs in default ensemble init** — `optimize_ensemble` previously seeded the starting ensemble with hardcoded IDs (`undershirt_sleeveless`, `boxer_synthetic`, `pants_standard`, `sneakers`). Items not present in the active inventory became phantom entries: they occupied layer positions (blocking upgrades), contributed 0 CLO, and could not be replaced. This was the root cause of PMV=-2.01 with the HA test inventory at 10°C. The init now picks the lightest available item per slot/fit from the actual inventory.
+- **Heuristic solver: fit violation in legs init** — `pants_standard` (fit=outer) was placed at `legs[1]` (a mid-layer position), violating the fit constraint. Outer items accumulated at the wrong layer as upgrades were applied. Fixed by placing the default outer legs item at `legs[self.max_layers - 1]`.
+
+### Added
+- `thermal_leggings` item to `inventory.json` (slot=legs, fit=mid, clo=0.40) — fills the inventory gap where the only mid-fit legs items were `shorts` (0.06) and `joggers_light` (0.25). ILP can now achieve ~3.60 CLO at -10°C (wind 5 m/s), improving PMV from -2.26 to -1.94.
+
 ## [0.9.0] - 2023-03-15
 
 ### Added

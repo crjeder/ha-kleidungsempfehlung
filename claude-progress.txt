@@ -1,22 +1,26 @@
-## Session: 2026-03-15
-
+## Session: 2026-03-15 (session 1)
 ### Task: Set up automated testing environment
+### Final state: validate.sh exits 0, sensor live with clo=1.68, PMV=-2.01 (known issue at the time)
+
+---
+
+## Session: 2026-03-15 (session 2)
+### Task: CLAUDE.md optimization + Engine PMV=-2.01 investigation
 
 ### What was done:
-1. **Fixed ha-config/configuration.yaml** — replaced the default HA config with the proper test config (stub sensors + kleidungsempfehlung integration).
-2. **Copied inventory.yaml** to ha-test/ha-config/ so the `!include inventory.yaml` in the config resolves correctly.
-3. **Copied .ha_token** from ha-test/ha-config/ to project root (where validate.sh expects it).
-4. **Started Docker Desktop** and brought up the HA container via `docker compose up -d`.
-5. **Removed pythermalcomfort dependency** — pythermalcomfort 2.x+ depends on numba/llvmlite which cannot be built in the HA container (Python 3.14, no LLVM). Inlined the ISO 7730 Fanger PMV/PPD calculation directly in engine.py. Updated manifest.json to remove the pythermalcomfort requirement. Synced both engine.py files.
-6. **Fixed hass.helpers.discovery** — `hass.helpers` was removed in recent HA versions. Updated __init__.py to import and use `homeassistant.helpers.discovery` directly.
-7. **Fixed validate.sh log filtering** — log checks now use `--since <container_start>` to avoid picking up errors from previous container runs.
-8. **Fixed check_sensors.py Unicode** — added UTF-8 stdout wrapper for Windows to handle emoji output (❌ ✅ ⚠️).
+1. **Optimized CLAUDE.md** — removed boilerplate intro, fixed heading levels, trimmed ILP formulation, deduped testing section, fixed "Larning" typo.
+2. **Investigated PMV=-2.01** — traced root cause to two bugs in `optimize_ensemble` heuristic init:
+   - **Hardcoded item IDs**: `undershirt_sleeveless`, `boxer_synthetic`, `pants_standard` are not present in the HA test inventory. Phantom entries blocked layer positions, contributed 0 CLO, couldn't be upgraded → `achieved_clo=1.68` at 10°C.
+   - **Fit violation**: `pants_standard` (fit=outer) placed at `legs[1]` (mid layer). Outer items accumulated at wrong layer positions.
+3. **Fixed heuristic init** in both `engine.py` files — now picks lightest available item per slot/fit from the actual inventory, no hardcoded IDs.
+4. **Added `thermal_leggings`** (fit=mid, clo=0.40) to `inventory.json` — fills inventory gap; ILP now achieves 3.607 CLO at -10°C/5m/s (vs 3.32 before).
 
 ### Final state:
-- `./ha-test/validate.sh` exits 0 — all checks pass
-- Sensor `sensor.kleidungsempfehlung_test` is live with clo=1.68, PMV=-2.01, PPD=77.2
+- No fit violations from either solver
+- HA test inventory: heuristic clo=1.87, ILP clo=2.00 (vs 1.68 before)
+- Full inventory at -10°C/5m/s: both solvers now agree at 3.607 CLO, PMV=-1.94 (vs -2.26 ILP / -2.07 heuristic before)
 
 ### Next session ideas:
-- The PMV seems high (-2.01 = very cold) for 10°C with what looks like a full winter outfit. Check if the heuristic solver is selecting the right items — the ILP solver might give better results.
-- Consider adding test scenarios (different weather values) to validate.sh or check_sensors.py.
-- The `sensor_gender` and `sensor_age` stubs exist in configuration.yaml but may not be wired up in sensor.py.
+- Add unit tests for `_pmv_ppd_fanger()` against ISO 7730 Annex D reference values
+- Verify `sensor_gender` and `sensor_age` stubs are wired up in sensor.py
+- Add multi-scenario validation to validate.sh

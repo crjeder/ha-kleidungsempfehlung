@@ -72,6 +72,7 @@ Config is **YAML-based**. Example: `custom_components/kleidungsempfehlung/exampl
 ## Gotchas
 
 - `engine.py` root and `custom_components/kleidungsempfehlung/engine.py` must stay in sync — edit both.
+- **Heuristic init is inventory-agnostic** — it picks starting items from the actual inventory at runtime. Do NOT introduce hardcoded item IDs there; items absent from an inventory become phantom entries that block layer positions and contribute 0 CLO.
 - `inventory.json` (CLI) and `inventory.yaml` (HA) are the same data in different formats.
 - `fit` determines valid layer indices. With `max_layers=4`: base→[0], mid→[1,2], outer→[3].
 - Activity sensor accepts numeric Met values or German/English text keywords (mapped in `sensor.py:_get_met_rate()`).

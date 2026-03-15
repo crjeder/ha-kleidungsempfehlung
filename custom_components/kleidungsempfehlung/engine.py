@@ -724,14 +724,23 @@ class SmartClothingEngine:
             ensemble = {slot: list(layers) for slot, layers in base_ensemble.items()}
         else:
             ensemble = self._create_empty_ensemble()
-            # Default base layers (fit: base items at index 0)
-            ensemble["torso"][0] = make_entry("undershirt_sleeveless")
-            ensemble["legs"][0] = make_entry("boxer_synthetic")  # required
-            ensemble["feet"][0] = make_entry("socks_standard")
-            # Default mid layer (fit: mid items at index 1+)
-            ensemble["legs"][1] = make_entry("pants_standard")
-            # Shoes as outer layer (no gaiters in inventory)
-            ensemble["feet"][self.max_layers - 1] = make_entry("sneakers")  # required
+            # Seed required and default starting positions from the actual inventory.
+            # Do NOT hardcode item IDs — they may not exist in every inventory.
+            def _pick_lightest(slot: str, fit: str):
+                options = [i for i in inv if i.get('slot') == slot and i.get('fit') == fit]
+                return make_entry(sorted(options, key=lambda x: x['clo'])[0]['id']) if options else None
+
+            for slot in ('torso', 'legs', 'feet'):
+                entry = _pick_lightest(slot, 'base')
+                if entry:
+                    ensemble[slot][0] = entry
+            # Outer layers: legs (optional default) and feet (required — shoes)
+            legs_outer = _pick_lightest('legs', 'outer')
+            if legs_outer:
+                ensemble['legs'][self.max_layers - 1] = legs_outer
+            feet_outer = _pick_lightest('feet', 'outer')
+            if feet_outer:
+                ensemble['feet'][self.max_layers - 1] = feet_outer
 
         # Rain requirement: if raining, MUST add waterproof outer layer (unless locked)
         if rain_mm_h > 1.0:

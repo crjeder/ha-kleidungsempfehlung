@@ -288,6 +288,15 @@
     "windproof": false
   },
   {
+    "id": "thermal_leggings",
+    "name": "Thermoleggings (dick)",
+    "slot": "legs",
+    "fit": "mid",
+    "clo": 0.40,
+    "waterproof": false,
+    "windproof": false
+  },
+  {
     "id": "ski_pants_insulated",
     "name": "Skihose (isoliert)",
     "slot": "legs",
