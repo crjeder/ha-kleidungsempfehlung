@@ -1,147 +1,92 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
-A **Smart Clothing Recommendation Engine** based on the Fanger PMV thermal comfort model (ISO 7730/ASHRAE 55). It has two components:
+A **Smart Clothing Recommendation Engine** based on the Fanger PMV thermal comfort model (ISO 7730/ASHRAE 55). Two components:
 
-1. **Standalone Python library + CLI** (`engine.py`, `main.py`) — usable independently for testing
-2. **Home Assistant custom integration** (`custom_components/kleidungsempfehlung/`) — wraps the engine as a HA sensor
+1. **Standalone Python library + CLI** (`engine.py`, `main.py`) — usable independently
+2. **Home Assistant custom integration** (`custom_components/kleidungsempfehlung/`) — wraps engine as a HA sensor
 
-## Running the CLI
+## CLI
 
 ```bash
-# Install dependencies first
 pip install pythermalcomfort scipy numpy
 
-# Basic usage
 python main.py --temp 5 --wind 3 --met 2.0
-
-# With temperature range (layering strategy: dress for warm, add layers for cold)
-python main.py -t 5 --temp-high 15 -m 1.5
-
-# Lock a specific item at a layer position
-python main.py -t 5 --lock torso:1:fleece_midlayer
-
-# Target a specific PMV (negative = prefer cooler, positive = warmer)
-python main.py -t 15 -m 2.0 --pmv -0.5
-
-# Use heuristic solver instead of ILP
-python main.py --temp 10 --solver heuristic
-
-# Custom inventory file
+python main.py -t 5 --temp-high 15 -m 1.5          # temperature range / layering
+python main.py -t 5 --lock torso:1:fleece_midlayer  # lock item at position
+python main.py -t 15 -m 2.0 --pmv -0.5             # target PMV (neg=cooler)
+python main.py --temp 10 --solver heuristic         # heuristic instead of ILP
 python main.py --temp 10 --inventory my_wardrobe.json
 ```
 
-# Testing
+## Testing (HA Integration)
 
-## After code changes (no deploy needed — source is bind-mounted into container):
 ```bash
 ./ha-test/restart.sh                               # restart HA + tail logs
 HA_TOKEN=$(cat .ha_token) ./ha-test/validate.sh    # full validation (exit 0 = pass)
 ```
 
-## First-time Docker setup
-```bash
-cd ha-test && docker compose up -d
-# Wait ~60s, then create a Long-Lived Access Token in HA (Profile → Security)
-echo "<your_token>" > ../.ha_token && chmod 600 ../.ha_token
-HA_TOKEN=$(cat ../.ha_token) ./validate.sh
-```
-
-## Tear down / reset
-```bash
-cd ha-test && docker compose down -v
-```
-
-## validate.sh checks
-1. Container running and HA API reachable
-2. No ERROR/EXCEPTION in `custom_components.kleidungsempfehlung` logs
-3. `sensor.kleidungsempfehlung_test` exists with numeric clo state
-4. Required attributes present: `ensemble`, `target_clo`, `achieved_clo`, `pmv`, `ppd`, `weather`, `met_rate`
-5. PMV in [-3, 3], PPD in [5, 100]
-
-## Stub sensor entity IDs (ha-test/ha-config/configuration.yaml)
-| Entity | Purpose |
-|--------|---------|
-| `input_number.test_temperature` | Outside temperature (°C) |
-| `input_number.test_wind` | Wind (m/s) |
-| `input_number.test_rain` | Rain (mm/h) |
-| `input_select.test_aktivitaet` | Activity level |
+See [ha-test/CLAUDE.md](ha-test/CLAUDE.md) for first-time Docker setup, validate.sh checks, and stub sensor details.
 
 ## Architecture
 
 ### Core Engine (`engine.py`)
 
-The engine is a standalone library with no HA dependency. Key flow:
-
-1. **PMV solver**: `solve_clo_for_pmv_target()` uses bisection to find the CLO value achieving a target PMV (default: 0 = neutral). Delegates to `pythermalcomfort.models.pmv_ppd_iso`.
-
-2. **`SmartClothingEngine`** class orchestrates everything:
-   - `calculate_target_clo()` → calls PMV solver
-   - `recommend_outfit()` → main entry point; handles single-temp and temp-range modes
-   - `optimize_ensemble_ilp()` → ILP (default solver, uses `scipy.optimize.milp`)
+1. **PMV solver**: `solve_clo_for_pmv_target()` — bisection to find CLO achieving target PMV. Delegates to `pythermalcomfort.models.pmv_ppd_iso`.
+2. **`SmartClothingEngine`** orchestrates:
+   - `calculate_target_clo()` → PMV solver
+   - `recommend_outfit()` → main entry point; single-temp and temp-range modes
+   - `optimize_ensemble_ilp()` → ILP solver (`scipy.optimize.milp`)
    - `optimize_ensemble()` → heuristic two-phase greedy solver
-
-3. **Temperature range mode**: When `weather_high` is provided, Phase 1 optimizes for the warm temperature (minimal clothing), then Phase 2 locks that outfit and adds layers for the cold temperature.
-
-4. **Layering factor**: Effective CLO = raw CLO × 0.835 (accounts for reduced insulation when layers compress).
+3. **Temperature range mode**: Phase 1 optimizes for warm temp (minimal clothing), Phase 2 locks that outfit and adds layers for cold temp.
+4. **Layering factor**: Effective CLO = raw CLO × 0.835 (compression reduces insulation).
 
 ### Data Model
 
-**Clothing item** (in `inventory.json` / `inventory.yaml`):
-- `slot`: one of `head`, `neck`, `torso`, `hands`, `legs`, `feet`
-- `fit`: `base` (layer 0 only), `mid` (layers 1..MAX-2), `outer` (layer MAX-1 only)
+**Clothing item** (`inventory.json` / `inventory.yaml`):
+- `slot`: `head`, `neck`, `torso`, `hands`, `legs`, `feet`
+- `fit`: `base` (layer 0 only) | `mid` (layers 1..MAX-2) | `outer` (layer MAX-1 only)
 - `clo`: insulation value
 
 **Ensemble**: `dict[slot → list[entry | None]]` where entry = `{"id": str, "locked": bool}`. Helpers: `get_item_id()`, `is_locked()`, `make_entry()`.
 
-**Required positions** (always filled): `legs[0]` (underwear) and `feet[3]` (shoes).
+**Required positions**: `legs[0]` (underwear) and `feet[3]` (shoes).
 
 ### ILP Formulation (`optimize_ensemble_ilp`)
 
-Binary variables x[i] for each valid (item, slot, layer) placement. Minimizes |achieved_clo - target_clo| via slack variables. Constraints (core + soft):
-- Each item used at most once; each (slot, layer) position has at most one item
-- Required positions filled; locked items preserved
-- Rain → waterproof outer on torso
-- Body coverage: ≥70% of CLO from torso + legs
-- Balance: |CLO(torso) - CLO(legs)| ≤ max(0.25×target, 0.1)
-- Decency: base layer must be covered; outer layer requires a mid layer
-
-On infeasibility, falls back to maximizing CLO with only core constraints.
+Binary variables x[i] per valid (item, slot, layer). Minimizes |achieved_clo - target_clo| via slack variables, with constraints for coverage, balance, decency, rain-proofing, and locked items. Falls back to maximizing CLO on infeasibility.
 
 ### Home Assistant Integration (`custom_components/kleidungsempfehlung/`)
 
-- **`__init__.py`**: Validates YAML config with voluptuous schemas; stores config in `hass.data[DOMAIN]`
-- **`sensor.py`**: `KleidungsempfehlungSensor` — polls HA state machine for weather/person entity values, calls `engine.recommend_outfit()`, writes achieved CLO as state (unit: `clo`)
-- **`engine.py`**: Copy of the standalone engine (kept in sync manually)
-- **`config_flow.py`**: UI-based config flow for HA (alternative to YAML)
-- **`const.py`**: All constant strings (CONF_*, DEFAULT_* values, DOMAIN)
+- **`__init__.py`**: Validates YAML config (voluptuous); stores in `hass.data[DOMAIN]`
+- **`sensor.py`**: `KleidungsempfehlungSensor` — polls HA state, calls `engine.recommend_outfit()`, writes achieved CLO as state (unit: `clo`)
+- **`engine.py`**: Copy of standalone engine (kept in sync manually)
+- **`config_flow.py`**: UI config flow (alternative to YAML)
+- **`const.py`**: All `CONF_*` / `DEFAULT_*` constants
 
-**Configuration is primarily YAML-based** (not UI flow). Example in `custom_components/kleidungsempfehlung/example_configuration.yaml`. Inventory can be referenced with `!include inventory.yaml`.
+Config is **YAML-based**. Example: `custom_components/kleidungsempfehlung/example_configuration.yaml`. Inventory via `!include inventory.yaml`.
 
 **Key sensor attributes**: `ensemble`, `target_clo`, `achieved_clo`, `pmv`, `ppd`, `weather`, `met_rate`, `pmv_target`.
 
-## Important Notes
+## Gotchas
 
-- `engine.py` in root and `custom_components/kleidungsempfehlung/engine.py` must be kept in sync — the HA integration uses its own copy.
-- `inventory.json` (used by CLI) and `inventory.yaml` (used by HA via `!include`) contain the same data in different formats.
-- The `fit` field determines which layer index is valid. With `max_layers=4`: base→[0], mid→[1,2], outer→[3].
-- Activity sensor in HA accepts either numeric Met values or German/English text keywords (mapped in `sensor.py:_get_met_rate()`).
+- `engine.py` root and `custom_components/kleidungsempfehlung/engine.py` must stay in sync — edit both.
+- `inventory.json` (CLI) and `inventory.yaml` (HA) are the same data in different formats.
+- `fit` determines valid layer indices. With `max_layers=4`: base→[0], mid→[1,2], outer→[3].
+- Activity sensor accepts numeric Met values or German/English text keywords (mapped in `sensor.py:_get_met_rate()`).
 
- ## Important Instructions
-  ### Session Start
-  1. Read `claude-progress.txt`
-  2. Read `git log --oneline -10`
-  3. Work on exactly ONE task
+## Session Protocol
 
-  ### Session End
-  1. Update README.md if relevant. follow https://www.makeareadme.com/ best practices
-  2. Update `claude-progress.txt`
-  3. Document relevant changes in `CLAUDE.md`
-  4. Update `TODO.md` to reflect the changes
-  5. Document changes in CHANGELOG.md in the format of @https://keepachangelog.com/en/1.1.0/
-  6. `git commit` with descriptive message
+### Start
+1. Read `claude-progress.txt`
+2. Read `git log --oneline -10`
+3. Work on exactly ONE task
 
-  - **Larning:** Update CLAUDE.md to avoid making the same mistake again.
+### End
+1. Update `README.md` if relevant (follow https://www.makeareadme.com/)
+2. Update `claude-progress.txt`
+3. Document changes in `CLAUDE.md` (learning from mistakes)
+4. Update `TODO.md`
+5. Document in `CHANGELOG.md` (https://keepachangelog.com/en/1.1.0/)
+6. `git commit` with descriptive message
