@@ -1,0 +1,81 @@
+# Minimal test inventory - enough to exercise all slots and layers
+- id: t_shirt
+  name: T-Shirt
+  slot: torso
+  fit: base
+  clo: 0.08
+
+- id: longsleeve
+  name: Langarmshirt
+  slot: torso
+  fit: base
+  clo: 0.20
+
+- id: fleece_jacket
+  name: Fleecejacke
+  slot: torso
+  fit: mid
+  clo: 0.45
+
+- id: winter_jacket
+  name: Winterjacke
+  slot: torso
+  fit: outer
+  clo: 0.55
+  waterproof: true
+  windproof: true
+
+- id: underwear
+  name: Unterhose
+  slot: legs
+  fit: base
+  clo: 0.03
+
+- id: jeans
+  name: Jeans
+  slot: legs
+  fit: mid
+  clo: 0.24
+
+- id: softshell_pants
+  name: Softshellhose
+  slot: legs
+  fit: outer
+  clo: 0.35
+  windproof: true
+
+- id: socks_standard
+  name: Normalsocken
+  slot: feet
+  fit: base
+  clo: 0.02
+
+- id: sneakers
+  name: Sneakers
+  slot: feet
+  fit: outer
+  clo: 0.04
+
+- id: winter_boots
+  name: Winterstiefel
+  slot: feet
+  fit: outer
+  clo: 0.10
+
+- id: beanie
+  name: Mütze
+  slot: head
+  fit: outer
+  clo: 0.20
+
+- id: gloves
+  name: Handschuhe
+  slot: hands
+  fit: outer
+  clo: 0.10
+
+- id: scarf
+  name: Schal
+  slot: neck
+  fit: outer
+  clo: 0.15

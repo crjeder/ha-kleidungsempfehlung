@@ -1,0 +1,32 @@
+# Build & Dependencies
+node_modules/
+build/
+dist/
+.cache/
+
+# Assets (Large Binaries)
+src/images/
+public/fonts/
+public/images/
+**/*.png
+**/*.jpg
+**/*.ico
+
+# Tooling & Playwright
+.husky/
+.playwright/
+.playwright-cli/
+.playwright-mcp/
+test-results/
+playwright-report/
+.travis.yml
+
+# Logs & System
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+.env*
+
+# Testing Coverage
+coverage/

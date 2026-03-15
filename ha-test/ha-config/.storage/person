@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "minor_version": 1,
+  "key": "person",
+  "data": {
+    "items": [
+      {
+        "id": "christoph_rieder",
+        "name": "Christoph Rieder",
+        "user_id": "c33639f4de8c415da6321ed25f11fb51",
+        "device_trackers": []
+      }
+    ]
+  }
+}

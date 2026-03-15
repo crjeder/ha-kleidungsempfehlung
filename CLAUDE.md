@@ -34,6 +34,42 @@ python main.py --temp 10 --solver heuristic
 python main.py --temp 10 --inventory my_wardrobe.json
 ```
 
+# Testing
+
+## After code changes (no deploy needed — source is bind-mounted into container):
+```bash
+./ha-test/restart.sh                               # restart HA + tail logs
+HA_TOKEN=$(cat .ha_token) ./ha-test/validate.sh    # full validation (exit 0 = pass)
+```
+
+## First-time Docker setup
+```bash
+cd ha-test && docker compose up -d
+# Wait ~60s, then create a Long-Lived Access Token in HA (Profile → Security)
+echo "<your_token>" > ../.ha_token && chmod 600 ../.ha_token
+HA_TOKEN=$(cat ../.ha_token) ./validate.sh
+```
+
+## Tear down / reset
+```bash
+cd ha-test && docker compose down -v
+```
+
+## validate.sh checks
+1. Container running and HA API reachable
+2. No ERROR/EXCEPTION in `custom_components.kleidungsempfehlung` logs
+3. `sensor.kleidungsempfehlung_test` exists with numeric clo state
+4. Required attributes present: `ensemble`, `target_clo`, `achieved_clo`, `pmv`, `ppd`, `weather`, `met_rate`
+5. PMV in [-3, 3], PPD in [5, 100]
+
+## Stub sensor entity IDs (ha-test/ha-config/configuration.yaml)
+| Entity | Purpose |
+|--------|---------|
+| `input_number.test_temperature` | Outside temperature (°C) |
+| `input_number.test_wind` | Wind (m/s) |
+| `input_number.test_rain` | Rain (mm/h) |
+| `input_select.test_aktivitaet` | Activity level |
+
 ## Architecture
 
 ### Core Engine (`engine.py`)
@@ -93,3 +129,17 @@ On infeasibility, falls back to maximizing CLO with only core constraints.
 - `inventory.json` (used by CLI) and `inventory.yaml` (used by HA via `!include`) contain the same data in different formats.
 - The `fit` field determines which layer index is valid. With `max_layers=4`: base→[0], mid→[1,2], outer→[3].
 - Activity sensor in HA accepts either numeric Met values or German/English text keywords (mapped in `sensor.py:_get_met_rate()`).
+
+ ## Important Instructions
+  ### Session Start
+  1. Read `claude-progress.txt`
+  2. Read `git log --oneline -10`
+  3. Work on exactly ONE task
+
+  ### Session End
+  1. Update README.md if relevant. follow https://www.makeareadme.com/ best practices
+  2. Update `claude-progress.txt`
+  3. Document relevant changes in `CLAUDE.md`
+  4. Update `TODO.md` to reflect the changes
+  5. Document changes in CHANGELOG.md in the format of @https://keepachangelog.com/en/1.1.0/
+  6. `git commit` with descriptive message

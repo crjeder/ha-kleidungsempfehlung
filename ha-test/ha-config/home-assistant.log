@@ -1,0 +1,4 @@
+2026-03-07 20:29:25.787 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration kleidungsempfehlung which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant
+2026-03-07 20:31:04.702 WARNING (SyncWorker_2) [py.warnings] /usr/local/lib/python3.14/site-packages/rich/segment.py:547: SyntaxWarning: 'return' in a 'finally' block
+  return
+
