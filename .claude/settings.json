@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker restart:*)",
+      "Bash(docker exec:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}

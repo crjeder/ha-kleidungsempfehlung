@@ -143,3 +143,5 @@ On infeasibility, falls back to maximizing CLO with only core constraints.
   4. Update `TODO.md` to reflect the changes
   5. Document changes in CHANGELOG.md in the format of @https://keepachangelog.com/en/1.1.0/
   6. `git commit` with descriptive message
+
+  - **Larning:** Update CLAUDE.md to avoid making the same mistake again.

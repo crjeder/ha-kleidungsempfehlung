@@ -6,6 +6,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.9.0] - 2023-03-15
+
 ### Added
 - Inline ISO 7730 Fanger PMV/PPD implementation in `engine.py` — removes the `pythermalcomfort` dependency entirely, which could not be installed in the HA container (Python 3.14 + numba/llvmlite build failure)
 - `claude-progress.txt` to track session progress
