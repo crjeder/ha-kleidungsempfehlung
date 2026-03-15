@@ -16,8 +16,9 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
+import math
+
 import numpy as np
-from pythermalcomfort.models import pmv_ppd_iso
 from scipy.optimize import milp, LinearConstraint, Bounds
 
 
@@ -94,15 +95,80 @@ class Weather:
 
 
 # =============================================================================
-# Fanger PMV Model using pythermalcomfort library (ISO 7730 / ASHRAE 55)
+# Fanger PMV Model — ISO 7730 / ASHRAE 55 inline implementation
 # =============================================================================
+
+def _pmv_ppd_fanger(tdb: float, tr: float, vr: float, rh: float,
+                    met: float, clo: float, wme: float = 0.0) -> tuple[float, float]:
+    """
+    ISO 7730 Fanger PMV/PPD calculation (inline, no external dependencies).
+
+    Args:
+        tdb: Dry-bulb air temperature [°C]
+        tr:  Mean radiant temperature [°C]
+        vr:  Relative air velocity [m/s]
+        rh:  Relative humidity [%]
+        met: Metabolic rate [Met]
+        clo: Clothing insulation [clo]
+        wme: External mechanical work [Met] (usually 0)
+
+    Returns:
+        (PMV, PPD)
+    """
+    # Water vapour pressure [Pa]
+    pa = rh * 10 * math.exp(16.6536 - 4030.183 / (tdb + 235))
+
+    icl = 0.155 * clo          # clothing thermal resistance [m²K/W]
+    m   = met * 58.15          # metabolic rate [W/m²]
+    w   = wme * 58.15          # external work [W/m²]
+    mw  = m - w                # net internal heat production [W/m²]
+
+    fcl = (1 + 1.29 * icl) if icl <= 0.078 else (1.05 + 0.645 * icl)
+
+    hcf = 12.1 * math.sqrt(vr)  # forced convection coefficient
+
+    taa = tdb + 273.0
+    tra = tr  + 273.0
+
+    # Iteratively solve for clothing surface temperature
+    p1 = icl * fcl
+    p2 = p1 * 3.96
+    p3 = p1 * 100.0
+    p4 = p1 * taa
+    p5 = 308.7 - 0.028 * mw + p2 * (tra / 100.0) ** 4
+
+    xn = (35.7 - 0.028 * mw) / 100.0  # initial guess (tcl/100)
+    xf = xn
+    for _ in range(150):
+        xf = (xf + xn) / 2.0
+        hcn = 2.38 * abs(100.0 * xf - taa) ** 0.25
+        hc  = max(hcf, hcn)
+        xn_new = (p5 + p4 * hc - p2 * xf ** 4) / (100.0 + p3 * hc)
+        if abs(xn_new - xf) < 1.5e-4:
+            xn = xn_new
+            break
+        xn = xn_new
+
+    tcl = 100.0 * xn - 273.0
+
+    # Six heat-loss terms (ISO 7730 Eq. 2)
+    hl1 = 3.05e-3  * (5733.0 - 6.99 * mw - pa)            # skin diffusion
+    hl2 = 0.42     * (mw - 58.15) if mw > 58.15 else 0.0  # sweating
+    hl3 = 1.7e-5   * m * (5867.0 - pa)                    # latent respiration
+    hl4 = 0.0014   * m * (34.0 - tdb)                     # dry respiration
+    hl5 = 3.96e-8  * fcl * ((tcl + 273.0) ** 4 - tra ** 4) # radiation
+    hl6 = fcl * hc * (tcl - tdb)                          # convection
+
+    ts  = 0.303 * math.exp(-0.036 * m) + 0.028
+    pmv = ts * (mw - hl1 - hl2 - hl3 - hl4 - hl5 - hl6)
+    ppd = 100.0 - 95.0 * math.exp(-0.03353 * pmv ** 4 - 0.2179 * pmv ** 2)
+
+    return pmv, ppd
+
 
 def calculate_pmv_ppd(weather: Weather, met_rate: float, clo: float) -> tuple[float, float]:
     """
-    Calculate PMV and PPD using the pythermalcomfort library.
-
-    Uses the ISO 7730 implementation from pythermalcomfort for accurate
-    Fanger model calculations.
+    Calculate PMV and PPD using the ISO 7730 Fanger model.
 
     Note:
         The PMV model normalizes by body surface area (Met = W/m²), so BSA
@@ -122,24 +188,17 @@ def calculate_pmv_ppd(weather: Weather, met_rate: float, clo: float) -> tuple[fl
     # Ensure minimum air velocity (still air has some natural convection)
     v_air = max(weather.wind_speed_ms, 0.1)
 
-    # Call pythermalcomfort's ISO 7730 implementation
-    # limit_inputs=False allows outdoor conditions outside ISO comfort zone
-    # (ISO limits: 10-30°C, 0-1 m/s wind, 0-2 clo)
-    result = pmv_ppd_iso(
+    pmv, ppd = _pmv_ppd_fanger(
         tdb=weather.t_ambient,
         tr=weather.t_radiant_effective,
         vr=v_air,
         rh=weather.rel_humidity,
         met=met_rate,
         clo=clo,
-        wme=0.0,  # External work, usually 0
-        limit_inputs=False  # Allow outdoor conditions
+        wme=0.0,
     )
 
-    pmv = result.pmv
-    ppd = result.ppd
-
-    # Clamp PMV to valid range
+    # Clamp to valid range
     pmv = max(-3.0, min(3.0, pmv))
     ppd = max(5.0, min(100.0, ppd))
 

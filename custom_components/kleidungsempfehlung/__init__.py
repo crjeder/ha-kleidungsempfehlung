@@ -6,7 +6,7 @@ import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import config_validation as cv, discovery
 from homeassistant.const import CONF_NAME
 
 from .const import (
@@ -108,7 +108,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
     # Load sensor platform
     hass.async_create_task(
-        hass.helpers.discovery.async_load_platform("sensor", DOMAIN, {}, config)
+        discovery.async_load_platform(hass, "sensor", DOMAIN, {}, config)
     )
 
     _LOGGER.info("Kleidungsempfehlung integration loaded with %d inventory items", len(conf[CONF_INVENTORY]))

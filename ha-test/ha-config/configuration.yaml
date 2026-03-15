@@ -1,11 +1,100 @@
+homeassistant:
+  name: Test Home
+  latitude: 48.1351
+  longitude: 11.5820
+  elevation: 519
+  unit_system: metric
+  time_zone: Europe/Berlin
 
-# Loads default set of integrations. Do not remove.
-default_config:
+# Enable REST API (needed for sensor validation)
+api:
 
-# Load frontend themes from the themes folder
-frontend:
-  themes: !include_dir_merge_named themes
+logger:
+  default: warning
+  logs:
+    custom_components.kleidungsempfehlung: debug   # verbose logging for our integration
 
-automation: !include automations.yaml
-script: !include scripts.yaml
-scene: !include scenes.yaml
+# Minimal HTTP config
+http:
+
+# Stub weather sensors so the integration has something to read
+input_number:
+  test_temperature:
+    name: Test Temperatur
+    min: -30
+    max: 50
+    step: 0.5
+    initial: 10.0
+    unit_of_measurement: "°C"
+
+  test_humidity:
+    name: Test Luftfeuchte
+    min: 0
+    max: 100
+    step: 1
+    initial: 60.0
+    unit_of_measurement: "%"
+
+  test_wind:
+    name: Test Wind
+    min: 0
+    max: 30
+    step: 0.1
+    initial: 3.0
+    unit_of_measurement: "m/s"
+
+  test_rain:
+    name: Test Regen
+    min: 0
+    max: 50
+    step: 0.1
+    initial: 0.0
+    unit_of_measurement: "mm/h"
+
+  test_alter:
+    name: Alter
+    min: 1
+    max: 120
+    step: 1
+    initial: 35
+    unit_of_measurement: "Jahre"
+
+input_select:
+  test_aktivitaet:
+    name: Aktivität
+    options:
+      - Ruhen/Sitzen
+      - Stehen/Leichte Arbeit
+      - Langsames Gehen
+      - Zügiges Gehen
+      - Sport/Laufen
+    initial: Stehen/Leichte Arbeit
+
+  test_geschlecht:
+    name: Geschlecht
+    options:
+      - männlich
+      - weiblich
+    initial: männlich
+
+# The integration itself (YAML mode)
+kleidungsempfehlung:
+  name: "Kleidungsempfehlung Test"
+
+  inventory: !include inventory.yaml
+
+  max_layers: 4
+  solver: "heuristic"   # faster for testing
+  layering_factor: 0.835
+
+  weather:
+    sensor_temperature: input_number.test_temperature
+    sensor_humidity:    input_number.test_humidity
+    sensor_wind:        input_number.test_wind
+    sensor_rain:        input_number.test_rain
+
+  person:
+    sensor_activity: input_select.test_aktivitaet
+    sensor_age:      input_number.test_alter
+    sensor_gender:   input_select.test_geschlecht
+    pmv_target: 0.0

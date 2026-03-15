@@ -5,9 +5,14 @@ Usage: python3 check_sensors.py <ha_url> <token>
 """
 
 import sys
+import io
 import json
 import urllib.request
 import urllib.error
+
+# Ensure UTF-8 output on Windows (emoji characters in output)
+if sys.platform == "win32" and hasattr(sys.stdout, "buffer"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
 def get_states(ha_url: str, token: str) -> dict:
     req = urllib.request.Request(

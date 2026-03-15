@@ -51,17 +51,18 @@ until curl -sf "$HA_URL/api/" -H "Authorization: Bearer $HA_TOKEN" > /dev/null 2
 done
 echo "  HA is ready."
 
-# 3. Check integration logs for errors
+# 3. Check integration logs for errors (only since last container start)
 echo ""
 echo "[3/4] Checking integration logs..."
-echo "--- kleidungsempfehlung log output ---"
-docker logs ha-test 2>&1 | grep -i "kleidungsempfehlung" || echo "  (no log lines found for integration)"
+CONTAINER_START=$(docker inspect ha-test --format='{{.State.StartedAt}}')
+echo "--- kleidungsempfehlung log output (since $CONTAINER_START) ---"
+docker logs ha-test --since "$CONTAINER_START" 2>&1 | grep -i "kleidungsempfehlung" || echo "  (no log lines found for integration)"
 echo ""
 
-ERROR_COUNT=$(docker logs ha-test 2>&1 | grep -i "kleidungsempfehlung" | grep -icE "error|exception|traceback" || true)
+ERROR_COUNT=$(docker logs ha-test --since "$CONTAINER_START" 2>&1 | grep -i "kleidungsempfehlung" | grep -icE "error|exception|traceback" || true)
 if [ "$ERROR_COUNT" -gt 0 ]; then
   echo "⚠️  Found $ERROR_COUNT error/exception line(s) in logs:"
-  docker logs ha-test 2>&1 | grep -i "kleidungsempfehlung" | grep -iE "error|exception|traceback"
+  docker logs ha-test --since "$CONTAINER_START" 2>&1 | grep -i "kleidungsempfehlung" | grep -iE "error|exception|traceback"
 else
   echo "✅ No errors in integration logs"
 fi
