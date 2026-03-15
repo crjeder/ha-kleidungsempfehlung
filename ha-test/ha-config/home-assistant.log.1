@@ -1,10 +1,2 @@
-2026-03-15 18:40:16.076 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration kleidungsempfehlung which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant
-2026-03-15 18:40:16.897 ERROR (MainThread) [homeassistant.setup] Error during setup of component kleidungsempfehlung: 'HomeAssistant' object has no attribute 'helpers'
-Traceback (most recent call last):
-  File "/usr/src/homeassistant/homeassistant/setup.py", line 425, in _async_setup_component
-    result = await task
-             ^^^^^^^^^^
-  File "/config/custom_components/kleidungsempfehlung/__init__.py", line 111, in async_setup
-    hass.helpers.discovery.async_load_platform("sensor", DOMAIN, {}, config)
-    ^^^^^^^^^^^^
-AttributeError: 'HomeAssistant' object has no attribute 'helpers'
+2026-03-15 20:00:58.696 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration kleidungsempfehlung which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant
+2026-03-15 20:00:59.502 INFO (MainThread) [custom_components.kleidungsempfehlung] Kleidungsempfehlung integration loaded with 13 inventory items
