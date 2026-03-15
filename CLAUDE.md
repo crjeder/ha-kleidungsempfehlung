@@ -80,14 +80,12 @@ Config is **YAML-based**. Example: `custom_components/kleidungsempfehlung/exampl
 ## Session Protocol
 
 ### Start
-1. Read `claude-progress.txt`
 2. Read `git log --oneline -10`
 3. Work on exactly ONE task
 
 ### End
 1. Update `README.md` if relevant (follow https://www.makeareadme.com/)
-2. Update `claude-progress.txt`
 3. Document changes in `CLAUDE.md` (learning from mistakes)
 4. Update `TODO.md`
 5. Document in `CHANGELOG.md` (https://keepachangelog.com/en/1.1.0/)
-6. `git commit` with descriptive message
+6. `/commit-commands:commit-push-pr` with descriptive message

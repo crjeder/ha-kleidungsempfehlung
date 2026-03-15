@@ -9,5 +9,5 @@
 
 ## 3. Commit
 
-- [ ] 3.1 Commit with message: `Deduplicate engine: root engine.py is now a re-export shim`
+- [x] 3.1 Commit with message: `Deduplicate engine: root engine.py is now a re-export shim`
 - [x] 3.2 Update `claude-progress.txt`, `CHANGELOG.md`, and `TODO.md`
