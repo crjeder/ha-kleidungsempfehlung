@@ -24,3 +24,24 @@
 - Add unit tests for `_pmv_ppd_fanger()` against ISO 7730 Annex D reference values
 - Verify `sensor_gender` and `sensor_age` stubs are wired up in sensor.py
 - Add multi-scenario validation to validate.sh
+
+---
+
+## Session: 2026-03-15 (session 3)
+### Task: Eliminate engine.py code duplication (engine-single-source)
+
+### What was done:
+- Replaced root `engine.py` (~600 lines, identical copy) with a 13-line re-export shim
+- Shim loads `custom_components/kleidungsempfehlung/engine.py` directly via `importlib` (bypasses `__init__.py` which has HA-only `voluptuous` dependency)
+- `main.py` (CLI) unchanged — imports still resolve transparently through the shim
+- HA integration completely unaffected (uses relative imports, never touches root file)
+- validate.sh exits 0, all checks pass
+
+### Final state:
+- Single source of truth: `custom_components/kleidungsempfehlung/engine.py`
+- Root `engine.py` = shim only
+
+### Next session ideas:
+- Add unit tests for `_pmv_ppd_fanger()` against ISO 7730 Annex D reference values
+- Verify `sensor_gender` and `sensor_age` stubs are wired up in sensor.py
+- Add multi-scenario validation to validate.sh

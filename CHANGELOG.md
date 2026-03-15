@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.9.2] - 2026-03-15
+
+### Changed
+- `engine.py` (root) is now a re-export shim — canonical engine logic lives exclusively in `custom_components/kleidungsempfehlung/engine.py`. Eliminates code duplication; CLI (`main.py`) continues to work unchanged.
+
 ## [0.9.1] - 2026-03-15
 
 ### Fixed

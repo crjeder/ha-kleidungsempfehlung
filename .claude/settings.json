@@ -6,7 +6,8 @@
       "Bash(git commit:*)",
       "Bash(python main.py --temp 10 --wind 0 --met 1.2 --solver heuristic)",
       "Bash(pip install:*)",
-      "Bash(python -c \"import scipy; print\\(scipy.__version__\\)\")"
+      "Bash(python -c \"import scipy; print\\(scipy.__version__\\)\")",
+      "Bash(bash ./ha-test/restart.sh)"
     ]
   }
 }
