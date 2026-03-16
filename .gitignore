@@ -36,4 +36,5 @@ ha-test/ha-config/*.log.*
 ha-test/ha-config/.ha_run.lock
 ha-test/ha-config/home-assistant_v2.db*
 ha-test/ha-config/tts/
-ha-test/ha-config/.storage/
+
+ha-test/ha-config/.storage/core.restore_state
