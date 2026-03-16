@@ -6,6 +6,18 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.9.4] - 2026-03-16
+
+### Added
+- **Person entity support** — optional `person_entity` config key reads `met_rate`, `pmv_target`, `age`, and `gender` from a `person.*` entity's customize attributes. Takes priority over individual sensor entities and static config defaults. Includes state-change subscription and UI selector in config flow.
+
+## [0.9.3] - 2026-03-16
+
+### Added
+- **Weather entity forecast input** — optional `weather_entity` config key accepts any `weather.*` entity. The sensor fetches `async_forecast_hourly`, computes minimum BOM apparent temperature across the forecast window, and feeds it into the engine. Max raw temperature drives range mode automatically when the forecast contains more than one entry. Falls back to individual sensor entities when `weather_entity` is not configured.
+- `_apparent_temperature()` (BOM formula) and `_kmh_to_ms()` helpers in `sensor.py`.
+- `forecast_window` sensor attribute exposes `entries`, `t_min_perceived`, `t_max_raw`, and `wind_at_min`.
+
 ## [0.9.2] - 2026-03-15
 
 ### Changed

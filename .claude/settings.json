@@ -8,7 +8,9 @@
       "Bash(pip install:*)",
       "Bash(python -c \"import scipy; print\\(scipy.__version__\\)\")",
       "Bash(bash ./ha-test/restart.sh)",
-      "Bash(bash ha-test/restart.sh)"
+      "Bash(bash ha-test/restart.sh)",
+      "Bash(./ha-test/scripts/restart.sh)",
+      "Bash(bash restart.sh)"
     ]
   }
 }

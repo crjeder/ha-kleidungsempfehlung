@@ -45,10 +45,23 @@ Then reference the entity in the integration config:
 ```yaml
 kleidungsempfehlung:
   person_entity: person.alice
-  # ... other config
+  person:                                          # fallback when attribute is absent
+    sensor_activity: input_select.aktivitaet
+    pmv_target: 0.0
 ```
 
-Person entity attributes take precedence over the `person:` sensor config values. Sensor config values remain as fallback when an attribute is absent.
+**Priority chain** (highest to lowest) for each parameter:
+
+| Parameter | Source 1 (highest) | Source 2 | Source 3 (default) |
+|-----------|-------------------|----------|-------------------|
+| `met_rate` | `person_entity` attribute | `person.sensor_activity` entity | 1.2 Met |
+| `pmv_target` | `person_entity` attribute | `person.pmv_target` config | 0.0 |
+| `age` | `person_entity` attribute | `person.sensor_age` entity | None (no adjustment) |
+| `gender` | `person_entity` attribute | `person.sensor_gender` entity | None (no adjustment) |
+
+**Gender keywords:** accepted values for `gender` are case-insensitive and include English (`female`, `f`) and German (`weiblich`, `w`, `weib`). Any other value is treated as male.
+
+**State-change trigger:** when `person_entity` is configured the sensor subscribes to state changes on that entity. Any change (e.g. presence update, automation writing new attribute values) triggers an immediate recalculation.
 
 Sensor output:
 - state: recommended clo (float)
