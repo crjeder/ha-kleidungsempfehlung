@@ -41,6 +41,7 @@ class KleidungsempfehlungConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         data_schema = vol.Schema(
             {
                 vol.Optional("weather_entity"): selector({"entity": {"domain": "weather"}}),
+                vol.Optional("person_entity"): selector({"entity": {"domain": "person"}}),
                 vol.Optional("sensor_temperatur"): selector({"entity": {"domain": "sensor"}}),
                 vol.Optional("sensor_luftfeuchte"): selector({"entity": {"domain": "sensor"}}),
                 vol.Optional("sensor_wind"): selector({"entity": {"domain": "sensor"}}),
@@ -76,6 +77,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         data_schema = vol.Schema(
             {
                 vol.Optional("weather_entity", default=self._options.get("weather_entity")): selector({"entity": {"domain": "weather"}}),
+                vol.Optional("person_entity", default=self._options.get("person_entity")): selector({"entity": {"domain": "person"}}),
                 vol.Optional("sensor_temperatur", default=self._options.get("sensor_temperatur")): selector({"entity": {"domain": "sensor"}}),
                 vol.Optional("sensor_luftfeuchte", default=self._options.get("sensor_luftfeuchte")): selector({"entity": {"domain": "sensor"}}),
                 vol.Optional("sensor_wind", default=self._options.get("sensor_wind")): selector({"entity": {"domain": "sensor"}}),

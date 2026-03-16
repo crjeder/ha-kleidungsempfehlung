@@ -25,6 +25,7 @@ from .const import (
     CONF_SENSOR_WIND,
     CONF_SENSOR_RAIN,
     CONF_SENSOR_RADIATION,
+    CONF_PERSON_ENTITY,
     CONF_SENSOR_ACTIVITY,
     CONF_SENSOR_AGE,
     CONF_SENSOR_GENDER,
@@ -84,6 +85,7 @@ CONFIG_SCHEMA = vol.Schema({
         vol.Optional(CONF_SOLVER, default=DEFAULT_SOLVER): vol.In(["ilp", "heuristic"]),
         vol.Optional(CONF_LAYERING_FACTOR, default=DEFAULT_LAYERING_FACTOR): vol.Coerce(float),
         vol.Optional(CONF_WEATHER_ENTITY): cv.entity_id,
+        vol.Optional(CONF_PERSON_ENTITY): cv.entity_id,
         vol.Optional("weather"): WEATHER_SENSORS_SCHEMA,
         vol.Optional("person"): PERSON_SCHEMA,
     })
@@ -104,6 +106,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         "solver": conf.get(CONF_SOLVER, DEFAULT_SOLVER),
         "layering_factor": conf.get(CONF_LAYERING_FACTOR, DEFAULT_LAYERING_FACTOR),
         "weather_entity": conf.get(CONF_WEATHER_ENTITY),
+        "person_entity": conf.get(CONF_PERSON_ENTITY),
         "weather_sensors": conf.get("weather", {}),
         "person": conf.get("person", {}),
         "name": conf.get(CONF_NAME, DEFAULT_NAME),

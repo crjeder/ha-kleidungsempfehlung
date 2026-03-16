@@ -5,6 +5,16 @@ homeassistant:
   elevation: 519
   unit_system: metric
   time_zone: Europe/Berlin
+  customize:
+    person.test_person:
+      met_rate: 2.0
+      pmv_target: -0.5
+      age: 30
+      gender: female
+
+person:
+  - name: Test Person
+    id: test_person
 
 # Enable REST API (needed for sensor validation)
 api:
@@ -110,6 +120,8 @@ kleidungsempfehlung:
   weather:
     sensor_humidity: input_number.test_humidity
     sensor_rain:     input_number.test_rain
+
+  person_entity: person.test_person
 
   person:
     sensor_activity: input_select.test_aktivitaet

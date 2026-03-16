@@ -26,6 +26,30 @@ Configurable input sensors (selectable via integration UI):
 - humidity (%)
 - solar_radiation (optional; perceived temperature increase from direct sun in °C, e.g., +5)
 
+### Person entity parameters
+
+Instead of (or in addition to) individual sensor entities, you can store person-specific parameters directly on a Home Assistant `person` entity using [`homeassistant.customize`](https://www.home-assistant.io/docs/configuration/customizing-devices/):
+
+```yaml
+homeassistant:
+  customize:
+    person.alice:
+      met_rate: 1.4      # Base metabolic rate (overrides sensor_activity)
+      pmv_target: -0.3   # Preferred thermal comfort offset (overrides person.pmv_target)
+      age: 32            # Age for demographic Met adjustment
+      gender: weiblich   # Gender for demographic Met adjustment
+```
+
+Then reference the entity in the integration config:
+
+```yaml
+kleidungsempfehlung:
+  person_entity: person.alice
+  # ... other config
+```
+
+Person entity attributes take precedence over the `person:` sensor config values. Sensor config values remain as fallback when an attribute is absent.
+
 Sensor output:
 - state: recommended clo (float)
 - attributes: details (detailed calculation data), input entity IDs used, last_updated, pmv/ppd, etc.

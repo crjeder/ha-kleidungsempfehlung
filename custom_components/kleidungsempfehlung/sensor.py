@@ -84,6 +84,7 @@ class KleidungsempfehlungSensor(RestoreEntity, SensorEntity):
         self._state = None
         self._attributes: dict[str, Any] = {}
         self._listeners = []
+        self._person_entity: str | None = config_data.get("person_entity")
 
         # Initialize engine
         self._engine = SmartClothingEngine(
@@ -136,6 +137,14 @@ class KleidungsempfehlungSensor(RestoreEntity, SensorEntity):
                 async_track_state_change_event(self.hass, entity_ids, self._async_inputs_updated)
             )
 
+        # Subscribe to person entity if configured
+        if self._person_entity:
+            self._listeners.append(
+                async_track_state_change_event(
+                    self.hass, [self._person_entity], self._async_inputs_updated
+                )
+            )
+
         # Subscribe to weather entity if configured
         if weather_entity_id := self._config.get("weather_entity"):
             self._listeners.append(
@@ -179,6 +188,32 @@ class KleidungsempfehlungSensor(RestoreEntity, SensorEntity):
             return cast(state.state)
         except (ValueError, TypeError):
             return state.state if cast == str else default
+
+    def _get_person_entity_attr(self, attr_name: str, cast=float):
+        """Read a custom attribute from the configured person entity.
+
+        Returns the cast value, or None if the entity is absent/unavailable
+        or the attribute is missing/non-castable.
+        """
+        if not self._person_entity:
+            return None
+        state = self.hass.states.get(self._person_entity)
+        if not state or state.state == "unavailable":
+            return None
+        value = state.attributes.get(attr_name)
+        if value is None:
+            return None
+        try:
+            return cast(value)
+        except (ValueError, TypeError):
+            _LOGGER.warning(
+                "Person entity %s attribute '%s' value %r cannot be cast to %s; ignoring",
+                self._person_entity,
+                attr_name,
+                value,
+                cast.__name__,
+            )
+            return None
 
     def _get_met_rate(self) -> float:
         """Get metabolic rate from activity sensor or default."""
@@ -411,10 +446,21 @@ class KleidungsempfehlungSensor(RestoreEntity, SensorEntity):
                     )
 
             # Get metabolic rate and adjust for demographics
-            base_met = self._get_met_rate()
+            # Priority: person entity attr → activity sensor → default 1.2
+            person_met = self._get_person_entity_attr("met_rate", cast=float)
+            base_met = person_met if person_met is not None else self._get_met_rate()
 
-            age = self._get_sensor_value(person_config.get(CONF_SENSOR_AGE), float, None)
-            gender = self._get_sensor_value(person_config.get(CONF_SENSOR_GENDER), str, None)
+            # Priority: person entity attr → sensor_age entity → None
+            person_age = self._get_person_entity_attr("age", cast=float)
+            age = person_age if person_age is not None else self._get_sensor_value(
+                person_config.get(CONF_SENSOR_AGE), float, None
+            )
+
+            # Priority: person entity attr → sensor_gender entity → None
+            person_gender = self._get_person_entity_attr("gender", cast=str)
+            gender = person_gender if person_gender is not None else self._get_sensor_value(
+                person_config.get(CONF_SENSOR_GENDER), str, None
+            )
             is_female = gender and any(x in gender.lower() for x in ["f", "w", "weib"])
 
             met_rate = adjust_met_for_demographics(
@@ -423,8 +469,11 @@ class KleidungsempfehlungSensor(RestoreEntity, SensorEntity):
                 is_female=is_female
             )
 
-            # Get PMV target
-            pmv_target = person_config.get(CONF_PMV_TARGET, DEFAULT_PMV_TARGET)
+            # Priority: person entity attr → person config → default 0.0
+            person_pmv = self._get_person_entity_attr("pmv_target", cast=float)
+            pmv_target = person_pmv if person_pmv is not None else person_config.get(
+                CONF_PMV_TARGET, DEFAULT_PMV_TARGET
+            )
 
             # Get recommendation
             result = self._engine.recommend_outfit(

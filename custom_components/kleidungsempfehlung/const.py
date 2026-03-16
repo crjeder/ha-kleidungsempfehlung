@@ -23,6 +23,7 @@ CONF_SENSOR_RAIN = "sensor_rain"
 CONF_SENSOR_RADIATION = "sensor_radiation"
 
 # Person configuration
+CONF_PERSON_ENTITY = "person_entity"
 CONF_SENSOR_ACTIVITY = "sensor_activity"
 CONF_SENSOR_AGE = "sensor_age"
 CONF_SENSOR_GENDER = "sensor_gender"
