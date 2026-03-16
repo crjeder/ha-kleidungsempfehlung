@@ -11,6 +11,9 @@ CONF_MAX_LAYERS = "max_layers"
 CONF_SOLVER = "solver"
 CONF_LAYERING_FACTOR = "layering_factor"
 
+# Weather entity (single weather.* entity, alternative to individual sensors)
+CONF_WEATHER_ENTITY = "weather_entity"
+
 # Weather sensor configuration
 CONF_SENSOR_TEMPERATURE = "sensor_temperature"
 CONF_SENSOR_TEMPERATURE_HIGH = "sensor_temperature_high"

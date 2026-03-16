@@ -28,14 +28,22 @@ kleidungsempfehlung:
       item_id: sneakers
       locked: false
 
-  # Wetter-Sensoren (sensor_temperature ist erforderlich)
+  # Option A: Wetter-Entity (empfohlen) – nutzt Stundenprognose für Minimal-Gefühlstemperatur
+  # Gibt weather_entity an, werden Temperatur und Wind aus der Prognose bezogen.
+  # sensor_temperature_high und sensor_wind in 'weather' werden dann ignoriert.
+  weather_entity: weather.home                       # z.B. Met.no, OpenWeatherMap, …
+
+  # Option B: Einzelne Wetter-Sensoren (Fallback / Kompatibilität)
+  # Wird verwendet, wenn kein weather_entity konfiguriert ist.
   weather:
-    sensor_temperature: sensor.aussentemperatur      # Pflicht
+    sensor_temperature: sensor.aussentemperatur      # Pflicht (ohne weather_entity)
     sensor_temperature_high: sensor.tageshoechsttemperatur  # Optional: für Temperaturbereich
     sensor_humidity: sensor.luftfeuchtigkeit         # Optional, default: 50%
     sensor_wind: sensor.windgeschwindigkeit          # Optional, default: 0 m/s
     sensor_rain: sensor.niederschlag                 # Optional, default: 0 mm/h
     sensor_radiation: sensor.sonnenstrahlung         # Optional: für Strahlungstemperatur
+  # Hinweis: sensor_humidity, sensor_rain und sensor_radiation werden auch bei
+  # weather_entity weiterhin aus diesen Sensoren gelesen (falls konfiguriert).
 
   # Person-Konfiguration (optional)
   person:

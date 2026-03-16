@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import math
 from typing import Any
 
 from homeassistant.components.sensor import SensorEntity
@@ -13,6 +14,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import (
     DOMAIN,
+    CONF_WEATHER_ENTITY,
     CONF_SENSOR_TEMPERATURE,
     CONF_SENSOR_TEMPERATURE_HIGH,
     CONF_SENSOR_HUMIDITY,
@@ -35,6 +37,21 @@ from .engine import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _apparent_temperature(t_c: float, rh_pct: float = 50.0, ws_ms: float = 0.0) -> float:
+    """Compute BOM apparent temperature (°C).
+
+    AT = T + 0.33*e − 0.70*ws − 4.00
+    e  = rh/100 * 6.105 * exp(17.27*T / (237.7+T))   [hPa]
+    """
+    e = (rh_pct / 100.0) * 6.105 * math.exp(17.27 * t_c / (237.7 + t_c))
+    return t_c + 0.33 * e - 0.70 * ws_ms - 4.00
+
+
+def _kmh_to_ms(kmh: float) -> float:
+    """Convert km/h to m/s."""
+    return kmh / 3.6
 
 
 async def async_setup_platform(
@@ -119,6 +136,14 @@ class KleidungsempfehlungSensor(RestoreEntity, SensorEntity):
                 async_track_state_change_event(self.hass, entity_ids, self._async_inputs_updated)
             )
 
+        # Subscribe to weather entity if configured
+        if weather_entity_id := self._config.get("weather_entity"):
+            self._listeners.append(
+                async_track_state_change_event(
+                    self.hass, [weather_entity_id], self._async_inputs_updated
+                )
+            )
+
         # Restore previous state
         if old_state := await self.async_get_last_state():
             try:
@@ -190,51 +215,200 @@ class KleidungsempfehlungSensor(RestoreEntity, SensorEntity):
 
         return 1.2  # Default
 
+    async def _async_fetch_forecast(self, entity_id: str) -> list:
+        """Fetch hourly forecast from a weather entity.
+
+        Uses the weather.get_forecasts service (HA ≥ 2023.9).
+        Falls back to state.attributes['forecast'] on older HA.
+        Returns an empty list on any error.
+        """
+        try:
+            result = await self.hass.services.async_call(
+                "weather",
+                "get_forecasts",
+                {"entity_id": entity_id, "type": "hourly"},
+                blocking=True,
+                return_response=True,
+            )
+            forecasts = (result or {}).get(entity_id, {}).get("forecast", [])
+            return forecasts or []
+        except Exception as err:  # noqa: BLE001
+            # ServiceNotFound on HA < 2023.9, or entity unavailable
+            _LOGGER.warning(
+                "weather.get_forecasts unavailable for %s (%s); falling back to state attribute",
+                entity_id,
+                err,
+            )
+            state = self.hass.states.get(entity_id)
+            if state:
+                return state.attributes.get("forecast", [])
+            return []
+
+    def _extract_weather_from_forecast(
+        self, forecasts: list, wind_speed_unit: str = "km/h"
+    ) -> tuple[float, float, float | None]:
+        """Compute cold and warm temperatures from a forecast list.
+
+        Returns (cold_t, cold_ws_ms, hot_t_or_None).
+        cold_t  = apparent temperature of the coldest entry
+        cold_ws = wind speed (m/s) of that same entry
+        hot_t   = maximum raw temperature across all entries (None if only 1 entry)
+        """
+        if not forecasts:
+            return (None, 0.0, None)
+
+        best_apparent = float("inf")
+        cold_t = None
+        cold_ws = 0.0
+        max_raw_t = float("-inf")
+
+        for entry in forecasts:
+            t = entry.get("temperature")
+            if t is None:
+                continue
+
+            rh = entry.get("humidity", 50.0) or 50.0
+            ws_raw = entry.get("wind_speed") or 0.0
+
+            # Convert wind speed to m/s
+            if wind_speed_unit == "km/h":
+                ws_ms = _kmh_to_ms(ws_raw)
+            else:
+                ws_ms = float(ws_raw)
+
+            apparent = _apparent_temperature(float(t), float(rh), ws_ms)
+
+            if apparent < best_apparent:
+                best_apparent = apparent
+                cold_t = apparent
+                cold_ws = ws_ms
+
+            if float(t) > max_raw_t:
+                max_raw_t = float(t)
+
+        if cold_t is None:
+            return (None, 0.0, None)
+
+        hot_t = max_raw_t if len(forecasts) > 1 else None
+        return (cold_t, cold_ws, hot_t)
+
     async def _async_update(self) -> None:
         """Compute clothing recommendation."""
+        weather_entity_id = self._config.get("weather_entity")
         weather_sensors = self._config.get("weather_sensors", {})
         person_config = self._config.get("person", {})
 
+        forecast_window_attrs: dict | None = None
+
         try:
-            # Read weather values
-            t_ambient = self._get_sensor_value(
-                weather_sensors.get(CONF_SENSOR_TEMPERATURE), float, 20.0
-            )
-            t_ambient_high = self._get_sensor_value(
-                weather_sensors.get(CONF_SENSOR_TEMPERATURE_HIGH), float, None
-            )
-            humidity = self._get_sensor_value(
-                weather_sensors.get(CONF_SENSOR_HUMIDITY), float, 50.0
-            )
-            wind_speed = self._get_sensor_value(
-                weather_sensors.get(CONF_SENSOR_WIND), float, 0.0
-            )
-            rain = self._get_sensor_value(
-                weather_sensors.get(CONF_SENSOR_RAIN), float, 0.0
-            )
-            radiation = self._get_sensor_value(
-                weather_sensors.get(CONF_SENSOR_RADIATION), float, None
-            )
+            if weather_entity_id:
+                # --- Weather-entity path ---
+                forecasts = await self._async_fetch_forecast(weather_entity_id)
 
-            # Build Weather object
-            weather = Weather(
-                t_ambient=t_ambient,
-                wind_speed_ms=wind_speed,
-                rel_humidity=humidity,
-                rain_mm_h=rain,
-                t_radiant=radiation,  # Use solar radiation as radiant temp if available
-            )
+                # Determine wind speed unit from entity state attributes
+                we_state = self.hass.states.get(weather_entity_id)
+                wind_unit = "km/h"
+                if we_state:
+                    wind_unit = we_state.attributes.get("wind_speed_unit", "km/h")
 
-            # Build weather_high if configured
-            weather_high = None
-            if t_ambient_high is not None:
-                weather_high = Weather(
-                    t_ambient=t_ambient_high,
+                cold_t, cold_ws, hot_t = self._extract_weather_from_forecast(
+                    forecasts, wind_speed_unit=wind_unit
+                )
+
+                if cold_t is None:
+                    # Forecast empty — fall back to current state temperature
+                    _LOGGER.warning(
+                        "Forecast for %s is empty; using current state temperature",
+                        weather_entity_id,
+                    )
+                    if we_state and we_state.state not in ("unknown", "unavailable"):
+                        try:
+                            cold_t = float(we_state.attributes.get("temperature", 20.0))
+                        except (ValueError, TypeError):
+                            cold_t = 20.0
+                    else:
+                        cold_t = 20.0
+                    cold_ws = 0.0
+                    hot_t = None
+                else:
+                    forecast_window_attrs = {
+                        "entries": len(forecasts),
+                        "t_min_perceived": round(cold_t, 2),
+                        "t_max_raw": round(hot_t, 2) if hot_t is not None else cold_t,
+                        "wind_at_min": round(cold_ws, 2),
+                    }
+
+                # Shared humidity/rain/radiation from individual sensors if configured
+                humidity = self._get_sensor_value(
+                    weather_sensors.get(CONF_SENSOR_HUMIDITY), float, 50.0
+                )
+                rain = self._get_sensor_value(
+                    weather_sensors.get(CONF_SENSOR_RAIN), float, 0.0
+                )
+                radiation = self._get_sensor_value(
+                    weather_sensors.get(CONF_SENSOR_RADIATION), float, None
+                )
+
+                t_ambient = cold_t
+                wind_speed = cold_ws
+                t_ambient_high = hot_t
+
+                weather = Weather(
+                    t_ambient=t_ambient,
                     wind_speed_ms=wind_speed,
                     rel_humidity=humidity,
                     rain_mm_h=rain,
                     t_radiant=radiation,
                 )
+
+                weather_high = None
+                if t_ambient_high is not None:
+                    weather_high = Weather(
+                        t_ambient=t_ambient_high,
+                        wind_speed_ms=0.0,
+                        rel_humidity=humidity,
+                        rain_mm_h=rain,
+                        t_radiant=radiation,
+                    )
+
+            else:
+                # --- Individual sensor path (original behaviour) ---
+                t_ambient = self._get_sensor_value(
+                    weather_sensors.get(CONF_SENSOR_TEMPERATURE), float, 20.0
+                )
+                t_ambient_high = self._get_sensor_value(
+                    weather_sensors.get(CONF_SENSOR_TEMPERATURE_HIGH), float, None
+                )
+                humidity = self._get_sensor_value(
+                    weather_sensors.get(CONF_SENSOR_HUMIDITY), float, 50.0
+                )
+                wind_speed = self._get_sensor_value(
+                    weather_sensors.get(CONF_SENSOR_WIND), float, 0.0
+                )
+                rain = self._get_sensor_value(
+                    weather_sensors.get(CONF_SENSOR_RAIN), float, 0.0
+                )
+                radiation = self._get_sensor_value(
+                    weather_sensors.get(CONF_SENSOR_RADIATION), float, None
+                )
+
+                weather = Weather(
+                    t_ambient=t_ambient,
+                    wind_speed_ms=wind_speed,
+                    rel_humidity=humidity,
+                    rain_mm_h=rain,
+                    t_radiant=radiation,
+                )
+
+                weather_high = None
+                if t_ambient_high is not None:
+                    weather_high = Weather(
+                        t_ambient=t_ambient_high,
+                        wind_speed_ms=wind_speed,
+                        rel_humidity=humidity,
+                        rain_mm_h=rain,
+                        t_radiant=radiation,
+                    )
 
             # Get metabolic rate and adjust for demographics
             base_met = self._get_met_rate()
@@ -290,6 +464,8 @@ class KleidungsempfehlungSensor(RestoreEntity, SensorEntity):
                 "met_rate": met_rate,
                 "pmv_target": pmv_target,
             }
+            if forecast_window_attrs is not None:
+                self._attributes["forecast_window"] = forecast_window_attrs
 
         except Exception as err:
             _LOGGER.exception("Error computing clothing recommendation: %s", err)

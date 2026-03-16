@@ -77,6 +77,36 @@ input_select:
       - weiblich
     initial: männlich
 
+# Stub weather entity with a static hourly forecast for testing
+weather:
+  - platform: template
+    name: "Test Wetter"
+    condition_template: "sunny"
+    temperature_template: "{{ states('input_number.test_temperature') | float(10) }}"
+    humidity_template: "{{ states('input_number.test_humidity') | float(60) }}"
+    wind_speed_template: "{{ (states('input_number.test_wind') | float(0)) * 3.6 }}"  # m/s → km/h
+    forecast_template:
+      - datetime: "2026-01-01T08:00:00"
+        temperature: 5
+        humidity: 80
+        wind_speed: 18   # km/h
+        precipitation: 0
+      - datetime: "2026-01-01T12:00:00"
+        temperature: 10
+        humidity: 65
+        wind_speed: 10
+        precipitation: 0
+      - datetime: "2026-01-01T16:00:00"
+        temperature: 12
+        humidity: 60
+        wind_speed: 5
+        precipitation: 0
+      - datetime: "2026-01-01T20:00:00"
+        temperature: 7
+        humidity: 75
+        wind_speed: 15
+        precipitation: 0
+
 # The integration itself (YAML mode)
 kleidungsempfehlung:
   name: "Kleidungsempfehlung Test"
@@ -87,11 +117,13 @@ kleidungsempfehlung:
   solver: "heuristic"   # faster for testing
   layering_factor: 0.835
 
+  # Use weather entity (primary path being tested)
+  weather_entity: weather.test_wetter
+
+  # Fallback individual sensors (humidity/rain still read from here)
   weather:
-    sensor_temperature: input_number.test_temperature
-    sensor_humidity:    input_number.test_humidity
-    sensor_wind:        input_number.test_wind
-    sensor_rain:        input_number.test_rain
+    sensor_humidity: input_number.test_humidity
+    sensor_rain:     input_number.test_rain
 
   person:
     sensor_activity: input_select.test_aktivitaet
