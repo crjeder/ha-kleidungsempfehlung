@@ -5,6 +5,16 @@ homeassistant:
   elevation: 519
   unit_system: metric
   time_zone: Europe/Berlin
+  customize:
+    person.test_person:
+      met_rate: 2.0
+      pmv_target: -0.5
+      age: 30
+      gender: female
+
+person:
+  - name: Test Person
+    id: test_person
 
 # Enable REST API (needed for sensor validation)
 api:
@@ -77,6 +87,22 @@ input_select:
       - weiblich
     initial: männlich
 
+# Stub weather entity with static hourly forecast for testing weather_entity path
+template:
+  - weather:
+      - name: "Test Wetter"
+        condition_template: "sunny"
+        temperature_template: "{{ states('input_number.test_temperature') | float(10) }}"
+        humidity_template: "{{ states('input_number.test_humidity') | float(60) }}"
+        wind_speed_template: "{{ (states('input_number.test_wind') | float(0)) * 3.6 }}"
+        forecast_hourly_template: >
+          [
+            {"datetime": "2026-01-01T06:00:00+00:00", "temperature": 5,  "humidity": 80, "wind_speed": 25, "precipitation": 0},
+            {"datetime": "2026-01-01T10:00:00+00:00", "temperature": 10, "humidity": 65, "wind_speed": 14, "precipitation": 0},
+            {"datetime": "2026-01-01T14:00:00+00:00", "temperature": 12, "humidity": 60, "wind_speed": 7,  "precipitation": 0},
+            {"datetime": "2026-01-01T18:00:00+00:00", "temperature": 7,  "humidity": 75, "wind_speed": 18, "precipitation": 0}
+          ]
+
 # The integration itself (YAML mode)
 kleidungsempfehlung:
   name: "Kleidungsempfehlung Test"
@@ -87,11 +113,15 @@ kleidungsempfehlung:
   solver: "heuristic"   # faster for testing
   layering_factor: 0.835
 
+  # Use weather entity (tests the new forecast path)
+  weather_entity: weather.test_wetter
+
+  # Individual sensors still used for humidity and rain
   weather:
-    sensor_temperature: input_number.test_temperature
-    sensor_humidity:    input_number.test_humidity
-    sensor_wind:        input_number.test_wind
-    sensor_rain:        input_number.test_rain
+    sensor_humidity: input_number.test_humidity
+    sensor_rain:     input_number.test_rain
+
+  person_entity: person.test_person
 
   person:
     sensor_activity: input_select.test_aktivitaet

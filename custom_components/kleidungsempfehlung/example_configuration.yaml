@@ -28,21 +28,50 @@ kleidungsempfehlung:
       item_id: sneakers
       locked: false
 
-  # Wetter-Sensoren (sensor_temperature ist erforderlich)
+  # Option A: Wetter-Entity (empfohlen) – nutzt Stundenprognose für Minimal-Gefühlstemperatur
+  # Gibt weather_entity an, werden Temperatur und Wind aus der Prognose bezogen.
+  # sensor_temperature_high und sensor_wind in 'weather' werden dann ignoriert.
+  weather_entity: weather.home                       # z.B. Met.no, OpenWeatherMap, …
+
+  # Option B: Einzelne Wetter-Sensoren (Fallback / Kompatibilität)
+  # Wird verwendet, wenn kein weather_entity konfiguriert ist.
   weather:
-    sensor_temperature: sensor.aussentemperatur      # Pflicht
+    sensor_temperature: sensor.aussentemperatur      # Pflicht (ohne weather_entity)
     sensor_temperature_high: sensor.tageshoechsttemperatur  # Optional: für Temperaturbereich
     sensor_humidity: sensor.luftfeuchtigkeit         # Optional, default: 50%
     sensor_wind: sensor.windgeschwindigkeit          # Optional, default: 0 m/s
     sensor_rain: sensor.niederschlag                 # Optional, default: 0 mm/h
     sensor_radiation: sensor.sonnenstrahlung         # Optional: für Strahlungstemperatur
+  # Hinweis: sensor_humidity, sensor_rain und sensor_radiation werden auch bei
+  # weather_entity weiterhin aus diesen Sensoren gelesen (falls konfiguriert).
 
-  # Person-Konfiguration (optional)
+  # Person-Entity (optional) – liest met_rate, pmv_target, age und gender
+  # direkt aus den Attributen der Person-Entity (via homeassistant.customize).
+  # Hat Vorrang vor den sensor_*-Einstellungen im person:-Block.
+  person_entity: person.alice
+
+  # Person-Konfiguration (optional) – Fallback wenn person_entity nicht gesetzt
+  # oder die jeweiligen Attribute dort fehlen
   person:
     sensor_activity: input_select.aktivitaet         # Aktivitätslevel (Met)
     sensor_age: input_number.alter                   # Alter für Met-Anpassung
     sensor_gender: input_select.geschlecht           # Geschlecht für Met-Anpassung
     pmv_target: 0.0                                  # Ziel-PMV (-0.5 = kühler, +0.5 = wärmer)
+
+
+# ============================================================================
+# Person-Attribute via homeassistant.customize
+# ============================================================================
+# Alternativ zu Sensor-Entities können die Parameter direkt auf der Person-Entity
+# gespeichert werden. Diese Werte werden beim HA-Start eingelesen.
+#
+# homeassistant:
+#   customize:
+#     person.alice:
+#       met_rate: 1.4        # Basis-Met-Wert (überschreibt sensor_activity)
+#       pmv_target: -0.3     # Bevorzugter Komfortbereich (überschreibt person.pmv_target)
+#       age: 32              # Alter für demografische Anpassung
+#       gender: weiblich     # Geschlecht (überschreibt sensor_gender)
 
 
 # ============================================================================
