@@ -1,4 +1,5 @@
 """Sensor platform for Kleidungsempfehlung."""
+
 from __future__ import annotations
 
 import logging
@@ -14,13 +15,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import (
     DOMAIN,
-    CONF_WEATHER_ENTITY,
-    CONF_SENSOR_TEMPERATURE,
-    CONF_SENSOR_TEMPERATURE_HIGH,
     CONF_SENSOR_HUMIDITY,
-    CONF_SENSOR_WIND,
-    CONF_SENSOR_RAIN,
-    CONF_SENSOR_RADIATION,
     CONF_SENSOR_ACTIVITY,
     CONF_SENSOR_AGE,
     CONF_SENSOR_GENDER,
@@ -39,7 +34,9 @@ from .engine import (
 _LOGGER = logging.getLogger(__name__)
 
 
-def _apparent_temperature(t_c: float, rh_pct: float = 50.0, ws_ms: float = 0.0) -> float:
+def _apparent_temperature(
+    t_c: float, rh_pct: float = 50.0, ws_ms: float = 0.0
+) -> float:
     """Compute BOM apparent temperature (°C).
 
     AT = T + 0.33*e − 0.70*ws − 4.00
@@ -95,7 +92,9 @@ class KleidungsempfehlungSensor(RestoreEntity, SensorEntity):
         )
 
         # Build base_ensemble from config
-        self._base_ensemble = self._build_base_ensemble(config_data.get("base_ensemble", []))
+        self._base_ensemble = self._build_base_ensemble(
+            config_data.get("base_ensemble", [])
+        )
 
     def _build_base_ensemble(self, base_config: list) -> dict | None:
         """Build base_ensemble dict from configuration."""
@@ -122,11 +121,8 @@ class KleidungsempfehlungSensor(RestoreEntity, SensorEntity):
         person_config = self._config.get("person", {})
 
         entity_ids = []
-        for key in [CONF_SENSOR_TEMPERATURE, CONF_SENSOR_TEMPERATURE_HIGH,
-                    CONF_SENSOR_HUMIDITY, CONF_SENSOR_WIND, CONF_SENSOR_RAIN,
-                    CONF_SENSOR_RADIATION]:
-            if entity_id := weather_sensors.get(key):
-                entity_ids.append(entity_id)
+        if entity_id := weather_sensors.get(CONF_SENSOR_HUMIDITY):
+            entity_ids.append(entity_id)
 
         for key in [CONF_SENSOR_ACTIVITY, CONF_SENSOR_AGE, CONF_SENSOR_GENDER]:
             if entity_id := person_config.get(key):
@@ -134,7 +130,9 @@ class KleidungsempfehlungSensor(RestoreEntity, SensorEntity):
 
         if entity_ids:
             self._listeners.append(
-                async_track_state_change_event(self.hass, entity_ids, self._async_inputs_updated)
+                async_track_state_change_event(
+                    self.hass, entity_ids, self._async_inputs_updated
+                )
             )
 
         # Subscribe to person entity if configured
@@ -187,7 +185,7 @@ class KleidungsempfehlungSensor(RestoreEntity, SensorEntity):
         try:
             return cast(state.state)
         except (ValueError, TypeError):
-            return state.state if cast == str else default
+            return state.state if cast is str else default
 
     def _get_person_entity_attr(self, attr_name: str, cast=float):
         """Read a custom attribute from the configured person entity.
@@ -236,12 +234,12 @@ class KleidungsempfehlungSensor(RestoreEntity, SensorEntity):
         # Map common activity descriptions to Met values
         val_lower = str(val).lower()
         activity_map = {
-            ("ruh", "sit", "sitz"): 1.0,      # Resting, sitting
-            ("schlaf", "lieg"): 0.8,           # Sleeping
-            ("steh", "leicht"): 1.2,           # Standing, light activity
-            ("lang", "gemüt", "spazier"): 2.0, # Walking slowly
+            ("ruh", "sit", "sitz"): 1.0,  # Resting, sitting
+            ("schlaf", "lieg"): 0.8,  # Sleeping
+            ("steh", "leicht"): 1.2,  # Standing, light activity
+            ("lang", "gemüt", "spazier"): 2.0,  # Walking slowly
             ("zügig", "schnell", "wandern"): 3.0,  # Walking fast
-            ("lauf", "jogg", "sport"): 4.0,    # Running, sports
+            ("lauf", "jogg", "sport"): 4.0,  # Running, sports
         }
 
         for keywords, met in activity_map.items():
@@ -373,16 +371,11 @@ class KleidungsempfehlungSensor(RestoreEntity, SensorEntity):
                         "wind_at_min": round(cold_ws, 2),
                     }
 
-                # Shared humidity/rain/radiation from individual sensors if configured
                 humidity = self._get_sensor_value(
                     weather_sensors.get(CONF_SENSOR_HUMIDITY), float, 50.0
                 )
-                rain = self._get_sensor_value(
-                    weather_sensors.get(CONF_SENSOR_RAIN), float, 0.0
-                )
-                radiation = self._get_sensor_value(
-                    weather_sensors.get(CONF_SENSOR_RADIATION), float, None
-                )
+                rain = 0.0
+                radiation = None
 
                 t_ambient = cold_t
                 wind_speed = cold_ws
@@ -406,45 +399,6 @@ class KleidungsempfehlungSensor(RestoreEntity, SensorEntity):
                         t_radiant=radiation,
                     )
 
-            else:
-                # --- Individual sensor path (original behaviour) ---
-                t_ambient = self._get_sensor_value(
-                    weather_sensors.get(CONF_SENSOR_TEMPERATURE), float, 20.0
-                )
-                t_ambient_high = self._get_sensor_value(
-                    weather_sensors.get(CONF_SENSOR_TEMPERATURE_HIGH), float, None
-                )
-                humidity = self._get_sensor_value(
-                    weather_sensors.get(CONF_SENSOR_HUMIDITY), float, 50.0
-                )
-                wind_speed = self._get_sensor_value(
-                    weather_sensors.get(CONF_SENSOR_WIND), float, 0.0
-                )
-                rain = self._get_sensor_value(
-                    weather_sensors.get(CONF_SENSOR_RAIN), float, 0.0
-                )
-                radiation = self._get_sensor_value(
-                    weather_sensors.get(CONF_SENSOR_RADIATION), float, None
-                )
-
-                weather = Weather(
-                    t_ambient=t_ambient,
-                    wind_speed_ms=wind_speed,
-                    rel_humidity=humidity,
-                    rain_mm_h=rain,
-                    t_radiant=radiation,
-                )
-
-                weather_high = None
-                if t_ambient_high is not None:
-                    weather_high = Weather(
-                        t_ambient=t_ambient_high,
-                        wind_speed_ms=wind_speed,
-                        rel_humidity=humidity,
-                        rain_mm_h=rain,
-                        t_radiant=radiation,
-                    )
-
             # Get metabolic rate and adjust for demographics
             # Priority: person entity attr → activity sensor → default 1.2
             person_met = self._get_person_entity_attr("met_rate", cast=float)
@@ -452,27 +406,35 @@ class KleidungsempfehlungSensor(RestoreEntity, SensorEntity):
 
             # Priority: person entity attr → sensor_age entity → None
             person_age = self._get_person_entity_attr("age", cast=float)
-            age = person_age if person_age is not None else self._get_sensor_value(
-                person_config.get(CONF_SENSOR_AGE), float, None
+            age = (
+                person_age
+                if person_age is not None
+                else self._get_sensor_value(
+                    person_config.get(CONF_SENSOR_AGE), float, None
+                )
             )
 
             # Priority: person entity attr → sensor_gender entity → None
             person_gender = self._get_person_entity_attr("gender", cast=str)
-            gender = person_gender if person_gender is not None else self._get_sensor_value(
-                person_config.get(CONF_SENSOR_GENDER), str, None
+            gender = (
+                person_gender
+                if person_gender is not None
+                else self._get_sensor_value(
+                    person_config.get(CONF_SENSOR_GENDER), str, None
+                )
             )
             is_female = gender and any(x in gender.lower() for x in ["f", "w", "weib"])
 
             met_rate = adjust_met_for_demographics(
-                base_met,
-                age=int(age) if age else None,
-                is_female=is_female
+                base_met, age=int(age) if age else None, is_female=is_female
             )
 
             # Priority: person entity attr → person config → default 0.0
             person_pmv = self._get_person_entity_attr("pmv_target", cast=float)
-            pmv_target = person_pmv if person_pmv is not None else person_config.get(
-                CONF_PMV_TARGET, DEFAULT_PMV_TARGET
+            pmv_target = (
+                person_pmv
+                if person_pmv is not None
+                else person_config.get(CONF_PMV_TARGET, DEFAULT_PMV_TARGET)
             )
 
             # Get recommendation

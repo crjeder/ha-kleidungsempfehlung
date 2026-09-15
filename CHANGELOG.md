@@ -6,6 +6,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Removed
+- **BREAKING: Individual temperature sensor path removed** — `sensor_temperature`, `sensor_temperature_high`, `sensor_wind`, `sensor_rain`, and `sensor_radiation` keys under `weather:` are no longer supported. `weather_entity` is now **required**.
+  - **Migration:** add `weather_entity: weather.<your_provider>` to your `configuration.yaml` and remove the individual sensor keys listed above. The optional `weather.sensor_humidity` key is retained.
+- Removed `CONF_SENSOR_TEMPERATURE`, `CONF_SENSOR_TEMPERATURE_HIGH`, `CONF_SENSOR_WIND`, `CONF_SENSOR_RAIN`, `CONF_SENSOR_RADIATION` constants from `const.py`.
+- Removed individual-sensor fields (`sensor_temperatur`, `sensor_wind`, `sensor_uv`, `sensor_sonnenstrahlung`, `sensor_praeferenz`, `sensor_gewicht`, `sensor_groesse`) from the config-flow UI.
+
 ## [0.9.4] - 2026-03-16
 
 ### Added
