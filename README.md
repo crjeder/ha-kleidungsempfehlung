@@ -12,19 +12,15 @@
 
 ## Home Assistant Integration
 
-This custom integration provides a sensor `sensor.clothing_recommendation` that calculates a clothing insulation recommendation (clo) based on configurable input sensors (e.g., temperature, wind, humidity, UV index, activity, body data).
+This custom integration provides a sensor `sensor.clothing_recommendation` that calculates a clothing insulation recommendation (clo) based on weather forecast data and optional person-specific parameters.
 
-Configurable input sensors (selectable via integration UI):
-- UV (UV index)
-- personal_preference (e.g., "cooler", "warmer", "neutral")
-- gender (string: "male"/"female", optional)
-- age (years)
-- weight (kg)
-- height (m)
-- wind (m/s)
-- temperature (°C)
-- humidity (%)
-- solar_radiation (optional; perceived temperature increase from direct sun in °C, e.g., +5)
+**Required configuration:**
+- `weather_entity`: a HA `weather.*` entity (e.g. Met.no, OpenWeatherMap). The integration fetches the hourly forecast to derive the day's coldest perceived temperature (wind-chill adjusted) and the warmest raw temperature.
+
+**Optional configuration:**
+- `weather.sensor_humidity`: local humidity sensor to override forecast humidity
+- `person_entity`: HA `person.*` entity with custom attributes (`met_rate`, `pmv_target`, `age`, `gender`)
+- `person.sensor_activity`, `person.sensor_age`, `person.sensor_gender`: fallback individual sensor entities for person parameters
 
 ### Person entity parameters
 
@@ -75,7 +71,7 @@ Important: This integration is based on standard approximations and heuristics. 
 2. Copy the files from this repo into that directory.
 3. Restart Home Assistant.
 4. Add the integration via Settings → Devices & Services → Add Integration → Clothing Recommendation.
-5. Select the appropriate sensor entities for temperature, wind, RH, etc. in the GUI.
+5. Select your `weather_entity` (required) and any optional person/humidity entities in the GUI.
 
 ## Notes & Development
 
